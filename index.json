@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-27T15:06:03Z",
+  "updatedAt": "2026-07-27T15:21:43Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -15,7 +15,7 @@
       "cover": "cover.jpg",
       "createdAt": "2026-07-27T17:30:00Z",
       "updatedAt": "2026-07-27T14:53:58Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/fluids.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/fluids.zip"
     },
     {
       "id": "m3-expressive-shapes",
@@ -30,7 +30,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-26T20:30:00Z",
       "updatedAt": "2026-07-26T20:30:00Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-expressive-shapes.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/m3-expressive-shapes.zip"
     },
     {
       "id": "m3-shapes-dynamic",
@@ -45,7 +45,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-25T17:52:01Z",
       "updatedAt": "2026-07-26T23:45:00Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-shapes-dynamic.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/m3-shapes-dynamic.zip"
     },
     {
       "id": "m3-shapes-gyro",
@@ -60,7 +60,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-25T17:52:01Z",
       "updatedAt": "2026-07-26T23:45:00Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-shapes-gyro.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/m3-shapes-gyro.zip"
     },
     {
       "id": "m3-shapes-lite",
@@ -75,7 +75,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-26T20:30:00Z",
       "updatedAt": "2026-07-26T20:30:00Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-shapes-lite.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/m3-shapes-lite.zip"
     },
     {
       "id": "m3-shapes-touch",
@@ -90,7 +90,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-25T17:52:01Z",
       "updatedAt": "2026-07-26T23:45:00Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-shapes-touch.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/m3-shapes-touch.zip"
     },
     {
       "id": "photo-blur-dynamics",
@@ -105,7 +105,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-26T20:30:00Z",
       "updatedAt": "2026-07-26T20:30:00Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/photo-blur-dynamics.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/photo-blur-dynamics.zip"
     },
     {
       "id": "shape-3",
@@ -120,7 +120,7 @@
       "cover": "cover.png",
       "createdAt": "2026-07-27T15:06:03Z",
       "updatedAt": "2026-07-27T15:06:03Z",
-      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/shape-3.zip"
+      "downloadUrl": "https://github.com/foxdear24654-alt/Wallify-Repo/releases/download/bundles/shape-3.zip"
     }
   ]
 }
