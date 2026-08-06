@@ -1,0 +1,11 @@
+{
+  "name": "M3e Shapes lite",
+  "description": "Плавающие фигуры Material 3 Expressive с адаптивной палитрой Material You, случайными формами, размерами и настройкой акцентных цветов.",
+  "author": "Pavlk",
+  "version": "2.0.0",
+  "main": "index.html",
+  "settingsPath": "settings/index.html",
+  "cover": "cover.png",
+  "useGyroscope": false,
+  "isLite": true
+}
