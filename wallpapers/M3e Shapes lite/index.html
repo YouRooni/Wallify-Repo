@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Material 3 Expressive Shapes — WebGL</title>
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #141218;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      overscroll-behavior: none;
+    }
+    body { position: relative; }
+    canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    #fallback {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      color: #fff;
+      background: #141218;
+      padding: 24px;
+      text-align: center;
+      font: 14px/1.5 system-ui, sans-serif;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="fallback">WebGL недоступен на этом устройстве.</div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const canvas = document.getElementById('gl');
+    const fallback = document.getElementById('fallback');
+    const gl = canvas.getContext('webgl', {
+      alpha: false,
+      antialias: true,
+      depth: false,
+      stencil: false,
+      premultipliedAlpha: false,
+      preserveDrawingBuffer: false,
+      powerPreference: 'high-performance'
+    });
+
+    if (!gl) {
+      fallback.style.display = 'grid';
+      return;
+    }
+
+    const TAU = Math.PI * 2;
+    const MAX_DPR = 2;
+    const MAX_SEGMENTS = 96;
+    const MAX_SHAPES = 64; // запас: до 20 задних + 20 передних + 12 акцентных фигур
+    const STRIDE = 10;
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const now = () => performance.now();
+
+    function hexToRgb(hex) {
+      hex = String(hex || '').replace('#', '');
+      if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+      const n = parseInt(hex, 16);
+      if (Number.isNaN(n)) return { r: 255, g: 255, b: 255 };
+      return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+    }
+
+    function rgbToHex({ r, g, b }) {
+      const c = v => clamp(Math.round(v), 0, 255).toString(16).padStart(2, '0');
+      return '#' + c(r) + c(g) + c(b);
+    }
+
+    function rgbToHsl({ r, g, b }) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          default: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return { h: h * 360, s, l };
+    }
+
+    function hslToRgb({ h, s, l }) {
+      h = (((h % 360) + 360) % 360) / 360;
+      let r, g, b;
+      if (s === 0) {
+        r = g = b = l;
+      } else {
+        const hue2rgb = (p, q, t) => {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return p + (q - p) * 6 * t;
+          if (t < 1 / 2) return q;
+          if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+          return p;
+        };
+        const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        const p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1 / 3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1 / 3);
+      }
+      return { r: r * 255, g: g * 255, b: b * 255 };
+    }
+
+    function rotateHue(hex, degrees, lShift = 0) {
+      const hsl = rgbToHsl(hexToRgb(hex));
+      hsl.h += degrees;
+      hsl.l = clamp(hsl.l + lShift, 0.05, 0.95);
+      return rgbToHex(hslToRgb(hsl));
+    }
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    // --- ИСПРАВЛЕННЫЙ БЛОК РАБОТЫ С НАСТРОЙКАМИ ---
+    const getEngine = () => window.WallpaperEngine || null;
+    
+    const safeGet = (key, def) => {
+      try {
+        const engine = getEngine();
+        if (engine) {
+          // 1. Пробуем считать сохраненную настройку (стандартный метод Wallify)
+          if (typeof engine.getSavedSetting === 'function') {
+            const val = engine.getSavedSetting(key);
+            if (val !== undefined && val !== null) return String(val);
+          }
+          // 2. Резервный метод, если используем устаревший getSetting
+          if (typeof engine.getSetting === 'function') {
+            return String(engine.getSetting(key, String(def)));
+          }
+        }
+      } catch (_) {}
+      return String(def);
+    };
+
+    const safeMeta = () => {
+      try {
+        const engine = getEngine();
+        if (engine && typeof engine.getMetadata === 'function') return engine.getMetadata();
+        if (engine && engine.metadata) return engine.metadata;
+      } catch (_) {}
+      return null;
+    };
+
+    let themeColors = {
+      bg: '#141218',
+      surface: '#211F26',
+      primary: '#D0BCFF',
+      secondary: '#CCC2DC',
+      tertiary: '#EFB8C8',
+      error: '#FFB4AB'
+    };
+    function applyDerivedTones(t) {
+      if (!t.tertiary) t.tertiary = rotateHue(t.primary, 55, 0.05);
+      if (!t.error) t.error = rotateHue(t.primary, 150, 0.1);
+    }
+    applyDerivedTones(themeColors);
+    const COLOR_ROLES = ['primary', 'secondary', 'tertiary', 'error'];
+
+    // Единая точка сборки палитры: сперва системные цвета Material You (если есть),
+    // затем — поверх них — пользовательские акцентные цвета из настроек, если включены.
+    function applyThemeColors(systemAccent) {
+      if (systemAccent) {
+        themeColors.bg = systemAccent.background || themeColors.bg;
+        themeColors.surface = systemAccent.surfaceContainer || systemAccent.surface || themeColors.surface;
+        themeColors.primary = systemAccent.primary || themeColors.primary;
+        themeColors.secondary = systemAccent.secondary || themeColors.secondary;
+        themeColors.tertiary = systemAccent.tertiary || null;
+        themeColors.error = systemAccent.error || null;
+      }
+      if (useCustomColors) {
+        if (customPrimaryColor) themeColors.primary = customPrimaryColor;
+        if (customSecondaryColor) themeColors.secondary = customSecondaryColor;
+        if (customTertiaryColor) themeColors.tertiary = customTertiaryColor;
+      }
+      applyDerivedTones(themeColors);
+    }
+
+    // Настройки
+    let amoledMode = false;
+    let motionDisabled = false;
+    let polygonCount = 40;
+    let backShapeCount = 5;
+    let frontShapeCount = 5;
+    let accentShapeCount = 4;
+    let backShapeSizeMin = 45;
+    let backShapeSizeMax = 80;
+    let frontShapeSizeMin = 18;
+    let frontShapeSizeMax = 34;
+    let accentShapeSizeMin = 14;
+    let accentShapeSizeMax = 22;
+    let backDarkness = 30; // 0 - 100%
+    let animationSpeed = 1.0;
+
+    // Разброс количества "углов" (лепестков) фигур — сколько именно углов
+    // получит конкретная фигура, выбирается случайно в этом диапазоне.
+    let backLobesMin = 1;
+    let backLobesMax = 3;
+    let frontLobesMin = 3;
+    let frontLobesMax = 6;
+
+    // Акцентные цвета: пользователь может отключить системную палитру Material You
+    // и задать свои primary/secondary/tertiary вручную.
+    let useCustomColors = false;
+    let customPrimaryColor = '#D0BCFF';
+    let customSecondaryColor = '#CCC2DC';
+    let customTertiaryColor = '#EFB8C8';
+    let lastSystemAccent = null;
+
+    // Отслеживание предыдущих значений — чтобы применять смену диапазона углов
+    // и акцентных цветов сразу, а не пересчитывать их бессмысленно каждый кадр.
+    let prevBackLobesMin = null, prevBackLobesMax = null;
+    let prevFrontLobesMin = null, prevFrontLobesMax = null;
+    let prevUseCustomColors = null;
+    let prevCustomPrimaryColor = null, prevCustomSecondaryColor = null, prevCustomTertiaryColor = null;
+
+    let isPaused = false;
+    let isLocked = false;
+    let currentStrokeWidth = 0;
+    let targetStrokeWidth = 0;
+    let introPulse = 0;
+    let innerW = 360;
+    let innerH = 640;
+    let dpr = 1;
+
+    const pointer = { x: -1000, y: -1000, active: false, timeout: null };
+
+    function mapSpeed(value) {
+      if (value === 'slow') return 0.72;
+      if (value === 'fast') return 1.35;
+      const parsed = parseFloat(value);
+      return Number.isNaN(parsed) ? 1.0 : clamp(parsed, 0.1, 3.0);
+    }
+
+    function readSettings() {
+      amoledMode = safeGet('amoledMode', 'false') === 'true';
+      motionDisabled = safeGet('disableMotion', 'false') === 'true';
+      polygonCount = clamp(parseInt(safeGet('polygonCount', '40'), 10) || 40, 12, MAX_SEGMENTS);
+      
+      backShapeCount = clamp(parseInt(safeGet('backShapeCount', '5'), 10), 0, 20);
+      frontShapeCount = clamp(parseInt(safeGet('frontShapeCount', '5'), 10), 0, 20);
+      accentShapeCount = clamp(parseInt(safeGet('accentShapeCount', '4'), 10), 0, 12);
+
+      // Диапазоны размеров: каждая фигура получает случайный размер внутри диапазона,
+      // а не один фиксированный размер на весь слой.
+      backShapeSizeMin = clamp(parseInt(safeGet('backShapeSizeMin', '45'), 10) || 45, 20, 150);
+      backShapeSizeMax = clamp(parseInt(safeGet('backShapeSizeMax', '80'), 10) || 80, backShapeSizeMin, 220);
+
+      frontShapeSizeMin = clamp(parseInt(safeGet('frontShapeSizeMin', '18'), 10) || 18, 8, 100);
+      frontShapeSizeMax = clamp(parseInt(safeGet('frontShapeSizeMax', '34'), 10) || 34, frontShapeSizeMin, 160);
+
+      accentShapeSizeMin = clamp(parseInt(safeGet('accentShapeSizeMin', '14'), 10) || 14, 6, 40);
+      accentShapeSizeMax = clamp(parseInt(safeGet('accentShapeSizeMax', '22'), 10) || 22, accentShapeSizeMin, 60);
+
+      backDarkness = clamp(parseInt(safeGet('backDarkness', '30'), 10), 0, 100);
+      animationSpeed = mapSpeed(safeGet('speed', '1.0'));
+
+      // Разброс количества углов — отдельно для заднего и переднего плана.
+      backLobesMin = clamp(parseInt(safeGet('backLobesMin', '1'), 10) || 1, 1, 10);
+      backLobesMax = clamp(parseInt(safeGet('backLobesMax', '3'), 10) || 3, backLobesMin, 12);
+      frontLobesMin = clamp(parseInt(safeGet('frontLobesMin', '3'), 10) || 3, 1, 10);
+      frontLobesMax = clamp(parseInt(safeGet('frontLobesMax', '6'), 10) || 6, frontLobesMin, 12);
+
+      if (backLobesMin !== prevBackLobesMin || backLobesMax !== prevBackLobesMax) {
+        for (const s of backShapes) s.triggerMorph();
+        prevBackLobesMin = backLobesMin;
+        prevBackLobesMax = backLobesMax;
+      }
+      if (frontLobesMin !== prevFrontLobesMin || frontLobesMax !== prevFrontLobesMax) {
+        for (const s of frontShapes) s.triggerMorph();
+        prevFrontLobesMin = frontLobesMin;
+        prevFrontLobesMax = frontLobesMax;
+      }
+
+      // Акцентные цвета: читаем и, если что-то изменилось, пересобираем палитру.
+      useCustomColors = safeGet('useCustomColors', 'false') === 'true';
+      customPrimaryColor = safeGet('customPrimaryColor', '#D0BCFF');
+      customSecondaryColor = safeGet('customSecondaryColor', '#CCC2DC');
+      customTertiaryColor = safeGet('customTertiaryColor', '#EFB8C8');
+
+      if (useCustomColors !== prevUseCustomColors ||
+          customPrimaryColor !== prevCustomPrimaryColor ||
+          customSecondaryColor !== prevCustomSecondaryColor ||
+          customTertiaryColor !== prevCustomTertiaryColor) {
+        applyThemeColors(lastSystemAccent);
+        prevUseCustomColors = useCustomColors;
+        prevCustomPrimaryColor = customPrimaryColor;
+        prevCustomSecondaryColor = customSecondaryColor;
+        prevCustomTertiaryColor = customTertiaryColor;
+      }
+      
+      document.body.style.backgroundColor = getBackgroundColor();
+    }
+
+    function getBackgroundColor() { return amoledMode ? '#000000' : themeColors.bg; }
+
+    function layerColor(layer, roleColor, brightness = 0) {
+      if (amoledMode) {
+        if (layer === 'back') {
+          const dimFactor = 1.0 - (backDarkness / 100) * 0.7;
+          return brightness > 0.15 ? '#999999' : rgbToHex({ r: 92 * dimFactor, g: 92 * dimFactor, b: 92 * dimFactor });
+        }
+        return brightness > 0.15 ? '#FFFFFF' : '#C2C2C2';
+      }
+      
+      const lShift = brightness * 0.25;
+      if (layer === 'back') {
+        const extraDarkness = (backDarkness / 100) * 0.35;
+        return rotateHue(roleColor, 0, -0.25 - extraDarkness + lShift);
+      }
+      return lShift > 0.005 ? rotateHue(roleColor, 0, lShift) : roleColor;
+    }
+
+    function makeCircleShape() { return () => ({ r: 1, sx: 1, sy: 1 }); }
+    function makeSquareShape() {
+      const k = 5;
+      return a => {
+        const c = Math.abs(Math.cos(a));
+        const s = Math.abs(Math.sin(a));
+        const r = 1 / Math.pow(Math.pow(c, k) + Math.pow(s, k), 1 / k);
+        return { r, sx: 1, sy: 1 };
+      };
+    }
+    function makeLobedShape(n, phase) {
+      if (n <= 1) {
+        const amp = 0.05 + Math.random() * 0.05;
+        return a => ({ r: 1 + amp * Math.cos(a + phase), sx: 1, sy: 1 });
+      }
+      if (n === 2) {
+        const amp = 0.16 + Math.random() * 0.08;
+        return a => ({ r: 1 + amp * Math.cos(2 * a + phase), sx: 1, sy: 1 });
+      }
+      const amp = 0.14 + Math.random() * 0.1;
+      return a => ({ r: 1 + amp * Math.cos(n * a + phase), sx: 1, sy: 1 });
+    }
+    function sampleAt(fnFrom, fnTo, morphT, angle) {
+      const a = fnFrom(angle);
+      const b = fnTo(angle);
+      return { r: a.r + (b.r - a.r) * morphT, sx: a.sx + (b.sx - a.sx) * morphT, sy: a.sy + (b.sy - a.sy) * morphT };
+    }
+
+    class M3Shape {
+      constructor(id, radius, layer, shapeKind = null) {
+        this.id = id;
+        this.layer = layer;
+        this.shapeKind = shapeKind;
+        this.baseRadius = radius || 50;
+        this.radius = this.baseRadius;
+        this.x = Math.random() * Math.max(1, innerW - this.baseRadius * 2) + this.baseRadius;
+        this.y = Math.random() * Math.max(1, innerH - this.baseRadius * 2) + this.baseRadius;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.rotation = Math.random() * TAU;
+        this.vRot = (Math.random() - 0.5) * 0.003;
+        // Базовая яркость одинакова для переднего и заднего плана.
+        // Затемнение заднего плана — это отдельная, настраиваемая величина (backDarkness),
+        // применяется позже в layerColor()/writeVertices(), а не "зашивается" в базовую непрозрачность.
+        this.opacity = 0.78 + Math.random() * 0.18;
+        this.colorRole = COLOR_ROLES[(Math.random() * COLOR_ROLES.length) | 0];
+        this.shapeFrom = this.pickShapeFn();
+        this.shapeTo = this.shapeFrom;
+        this.morphT = 1;
+        this.isMorphing = false;
+        this.morphDuration = 800 + Math.random() * 700;
+        this.morphStart = 0;
+        this.springScale = 1;
+        this.springVel = 0;
+        this.brightness = 0;
+        this._isCircle = false;
+        this.ptsX = new Float32Array(MAX_SEGMENTS + 1);
+        this.ptsY = new Float32Array(MAX_SEGMENTS + 1);
+      }
+      pickShapeFn() {
+        if (this.shapeKind === 'circle_square') {
+          this._isCircle = !this._isCircle;
+          return this._isCircle ? makeCircleShape() : makeSquareShape();
+        }
+        if (this.shapeKind === 'circle') return makeCircleShape();
+        if (this.shapeKind === 'square') return makeSquareShape();
+        // Диапазон читаем "живьём" из текущих настроек, а не из значения,
+        // зафиксированного при создании фигуры — так изменение разброса
+        // количества углов в настройках подхватывается при следующем морфинге.
+        const [min, max] = this.layer === 'back'
+          ? [backLobesMin, backLobesMax]
+          : [frontLobesMin, frontLobesMax];
+        const n = min + ((Math.random() * (max - min + 1)) | 0);
+        const phase = Math.random() * TAU;
+        return makeLobedShape(n, phase);
+      }
+      triggerMorph() {
+        if (!this.isMorphing) {
+          this.shapeTo = this.pickShapeFn();
+          this.morphStart = now();
+          this.isMorphing = true;
+        }
+      }
+      update(shapes) {
+        if (isPaused) return;
+        if (pointer.active) {
+          const dx = this.x - pointer.x;
+          const dy = this.y - pointer.y;
+          const dist = Math.hypot(dx, dy);
+          const repelRadius = 280;
+          if (dist < repelRadius && dist > 0) {
+            const force = Math.pow(1 - dist / repelRadius, 2);
+            if (!motionDisabled) {
+              this.vx += (dx / dist) * force * 0.38 * animationSpeed;
+              this.vy += (dy / dist) * force * 0.38 * animationSpeed;
+            }
+            this.springVel += force * 0.01 * animationSpeed;
+            this.brightness = Math.max(this.brightness, force * 0.32);
+          }
+        }
+        this.brightness += (0 - this.brightness) * 0.08;
+        const stiffness = 0.02, damping = 0.82;
+        const forceSize = (1 - this.springScale) * stiffness;
+        this.springVel = clamp((this.springVel + forceSize) * damping, -0.25, 0.25);
+        this.springScale = clamp(this.springScale + this.springVel, 0.6, 1.6);
+        this.radius = this.baseRadius * this.springScale;
+        if (this.isMorphing) {
+          const morphDuration = Math.max(120, this.morphDuration / animationSpeed);
+          const t = (now() - this.morphStart) / morphDuration;
+          if (t >= 1) { this.morphT = 1; this.isMorphing = false; this.shapeFrom = this.shapeTo; }
+          else this.morphT = easeInOutCubic(t);
+        }
+        if (!motionDisabled) {
+          const speedScale = animationSpeed;
+          this.vx *= 0.975;
+          this.vy *= 0.975;
+          let speed = Math.hypot(this.vx, this.vy);
+          if (speed < 0.15) { this.vx *= 1.03; this.vy *= 1.03; }
+          this.x += this.vx * speedScale;
+          this.y += this.vy * speedScale;
+          const maxSpeed = 11.5 * speedScale;
+          speed = Math.hypot(this.vx, this.vy);
+          if (speed > maxSpeed) { this.vx = (this.vx / speed) * maxSpeed; this.vy = (this.vy / speed) * maxSpeed; }
+          this.rotation += this.vRot * speedScale;
+          this.vRot *= 0.996;
+          this.vRot = clamp(this.vRot, -0.02, 0.02);
+        }
+        const w = innerW, h = innerH;
+        if (this.x - this.radius < 0) { this.x = this.radius; this.vx = Math.abs(this.vx) * 1.08; this.vRot += (Math.random() - 0.5) * 0.008; }
+        if (this.x + this.radius > w) { this.x = w - this.radius; this.vx = -Math.abs(this.vx) * 1.08; this.vRot += (Math.random() - 0.5) * 0.008; }
+        if (this.y - this.radius < 0) { this.y = this.radius; this.vy = Math.abs(this.vy) * 1.08; this.vRot += (Math.random() - 0.5) * 0.008; }
+        if (this.y + this.radius > h) { this.y = h - this.radius; this.vy = -Math.abs(this.vy) * 1.08; this.vRot += (Math.random() - 0.5) * 0.008; }
+        for (let i = 0; i < shapes.length; i++) {
+          const other = shapes[i];
+          if (other.id === this.id) continue;
+          const dx = other.x - this.x;
+          const dy = other.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          const minDist = this.radius + other.radius + 15;
+          if (dist < minDist && dist > 0) {
+            const overlap = (minDist - dist) * 0.05;
+            const nx = dx / dist;
+            const ny = dy / dist;
+            this.x -= nx * overlap;
+            this.y -= ny * overlap;
+            other.x += nx * overlap;
+            other.y += ny * overlap;
+            this.vx -= nx * 0.05;
+            this.vy -= ny * 0.05;
+            other.vx += nx * 0.05;
+            other.vy += ny * 0.05;
+            const tangential = (nx * this.vy - ny * this.vx) * 0.15;
+            this.vRot -= tangential;
+            other.vRot += tangential;
+            this.triggerMorph();
+            other.triggerMorph();
+          }
+        }
+      }
+      buildPath(segments) {
+        for (let i = 0; i <= segments; i++) {
+          const angle = (i / segments) * TAU;
+          const s = sampleAt(this.shapeFrom, this.shapeTo, this.morphT, angle);
+          this.ptsX[i] = Math.cos(angle) * s.r * s.sx * this.radius;
+          this.ptsY[i] = Math.sin(angle) * s.r * s.sy * this.radius;
+        }
+      }
+      writeVertices(out, offset, segments, colorHex, alphaMul, glowMul, kindVal) {
+        this.buildPath(segments);
+        const c = hexToRgb(colorHex);
+        
+        let alpha = this.opacity * alphaMul;
+        if (this.layer === 'back') {
+          alpha *= (1.0 - (backDarkness / 100) * 0.6);
+        }
+
+        const cos = Math.cos(this.rotation);
+        const sin = Math.sin(this.rotation);
+        const write = (x, y, cx, cy) => {
+          out[offset++] = x;
+          out[offset++] = y;
+          out[offset++] = cx;
+          out[offset++] = cy;
+          out[offset++] = c.r / 255;
+          out[offset++] = c.g / 255;
+          out[offset++] = c.b / 255;
+          out[offset++] = alpha;
+          out[offset++] = glowMul;
+          out[offset++] = kindVal;
+        };
+        write(this.x, this.y, this.x, this.y);
+        for (let i = 0; i <= segments; i++) {
+          const px = this.ptsX[i];
+          const py = this.ptsY[i];
+          const rx = this.x + px * cos - py * sin;
+          const ry = this.y + px * sin + py * cos;
+          write(rx, ry, this.x, this.y);
+        }
+        return offset;
+      }
+    }
+
+    let backShapes = [];
+    let frontShapes = [];
+    let frontAccents = [];
+    let allFrontCache = [];
+    let drawRanges = [];
+
+    // Единый счётчик id — id должны быть уникальны глобально, иначе фигуры из
+    // разных массивов (frontShapes / frontAccents) с одинаковым id ошибочно
+    // считают друг друга "собой" в физике столкновений (other.id === this.id).
+    let shapeIdCounter = 1;
+    function nextShapeId() { return shapeIdCounter++; }
+
+    function rebuildAllFront() {
+      allFrontCache.length = 0;
+      for (const s of frontShapes) allFrontCache.push(s);
+      for (const s of frontAccents) allFrontCache.push(s);
+    }
+
+    // Случайный размер в диапазоне [min, max] — именно "разброс для рандома",
+    // а не единственное вычисленное значение.
+    function randomSize(min, max) {
+      if (max <= min) return min;
+      return min + Math.random() * (max - min);
+    }
+
+    // Единая функция управления количеством фигур в слое. Используется для ВСЕХ
+    // трёх групп (задние / передние / акцентные), поэтому ни одна группа не может
+    // молча игнорировать настройки количества — включая значение 0.
+    function updateLayerCount(list, targetCount, layer, minSize, maxSize, shapeKind = null) {
+      while (list.length < targetCount) {
+        const radius = randomSize(minSize, maxSize);
+        list.push(new M3Shape(nextShapeId(), radius, layer, shapeKind));
+      }
+      while (list.length > targetCount) list.pop();
+    }
+
+    // Если пользователь меняет диапазон размеров в настройках, уже существующие
+    // фигуры пере-рандомизируются в новом диапазоне (иначе изменение ползунка
+    // размера никак не влияло бы на уже созданные фигуры).
+    function rerollSizes(list, minSize, maxSize) {
+      for (const s of list) {
+        s.baseRadius = randomSize(minSize, maxSize);
+      }
+    }
+
+    let prevBackSizeMin = null, prevBackSizeMax = null;
+    let prevFrontSizeMin = null, prevFrontSizeMax = null;
+    let prevAccentSizeMin = null, prevAccentSizeMax = null;
+
+    function updateShapesCount() {
+      const prevBackLen = backShapes.length;
+      const prevFrontLen = frontShapes.length;
+      const prevAccentLen = frontAccents.length;
+
+      updateLayerCount(backShapes, backShapeCount, 'back', backShapeSizeMin, backShapeSizeMax);
+      updateLayerCount(frontShapes, frontShapeCount, 'front', frontShapeSizeMin, frontShapeSizeMax);
+      updateLayerCount(frontAccents, accentShapeCount, 'front', accentShapeSizeMin, accentShapeSizeMax, 'circle_square');
+
+      if (backShapeSizeMin !== prevBackSizeMin || backShapeSizeMax !== prevBackSizeMax) {
+        rerollSizes(backShapes, backShapeSizeMin, backShapeSizeMax);
+        prevBackSizeMin = backShapeSizeMin;
+        prevBackSizeMax = backShapeSizeMax;
+      }
+      if (frontShapeSizeMin !== prevFrontSizeMin || frontShapeSizeMax !== prevFrontSizeMax) {
+        rerollSizes(frontShapes, frontShapeSizeMin, frontShapeSizeMax);
+        prevFrontSizeMin = frontShapeSizeMin;
+        prevFrontSizeMax = frontShapeSizeMax;
+      }
+      if (accentShapeSizeMin !== prevAccentSizeMin || accentShapeSizeMax !== prevAccentSizeMax) {
+        rerollSizes(frontAccents, accentShapeSizeMin, accentShapeSizeMax);
+        prevAccentSizeMin = accentShapeSizeMin;
+        prevAccentSizeMax = accentShapeSizeMax;
+      }
+
+      if (prevBackLen !== backShapes.length || prevFrontLen !== frontShapes.length || prevAccentLen !== frontAccents.length) {
+        rebuildAllFront();
+      }
+    }
+
+    function resizeCanvas() {
+      innerW = Math.max(1, window.innerWidth || 360);
+      innerH = Math.max(1, window.innerHeight || 640);
+      dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+      canvas.width = Math.max(1, Math.floor(innerW * dpr));
+      canvas.height = Math.max(1, Math.floor(innerH * dpr));
+      canvas.style.width = innerW + 'px';
+      canvas.style.height = innerH + 'px';
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uResolution, innerW, innerH);
+    }
+
+    const vsSource = `
+      attribute vec2 aPos;
+      attribute vec2 aCenter;
+      attribute vec4 aColor;
+      attribute vec2 aMeta;
+      uniform vec2 uResolution;
+      uniform float uPassScale;
+      varying vec4 vColor;
+      varying vec2 vMeta;
+      void main() {
+        vec2 scaled = aCenter + (aPos - aCenter) * uPassScale;
+        vec2 clip = vec2((scaled.x / uResolution.x) * 2.0 - 1.0,
+                         1.0 - (scaled.y / uResolution.y) * 2.0);
+        gl_Position = vec4(clip, 0.0, 1.0);
+        vColor = aColor;
+        vMeta = aMeta;
+      }
+    `;
+
+    const fsSource = `
+      precision mediump float;
+      varying vec4 vColor;
+      varying vec2 vMeta;
+      uniform float uPassAlpha;
+      uniform float uPassGlow;
+      uniform vec3 uGlowTint;
+      void main() {
+        float glow = vMeta.x;
+        float kind = vMeta.y;
+        float soft = smoothstep(1.12, 0.0, abs(kind - 0.5));
+        vec3 base = vColor.rgb;
+        vec3 glowColor = mix(base, uGlowTint, 0.34);
+        vec3 rgb = mix(base, glowColor, clamp(glow * uPassGlow, 0.0, 1.0));
+        float alpha = vColor.a * uPassAlpha * mix(0.90, 1.0, soft);
+        gl_FragColor = vec4(rgb, alpha);
+      }
+    `;
+
+    function compileShader(type, src) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(sh) || 'Shader compile failed');
+      }
+      return sh;
+    }
+
+    function createProgram(vs, fs) {
+      const p = gl.createProgram();
+      gl.attachShader(p, compileShader(gl.VERTEX_SHADER, vs));
+      gl.attachShader(p, compileShader(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(p) || 'Program link failed');
+      }
+      return p;
+    }
+
+    const program = createProgram(vsSource, fsSource);
+    gl.useProgram(program);
+
+    const aPos = gl.getAttribLocation(program, 'aPos');
+    const aCenter = gl.getAttribLocation(program, 'aCenter');
+    const aColor = gl.getAttribLocation(program, 'aColor');
+    const aMeta = gl.getAttribLocation(program, 'aMeta');
+    const uResolution = gl.getUniformLocation(program, 'uResolution');
+    const uPassScale = gl.getUniformLocation(program, 'uPassScale');
+    const uPassAlpha = gl.getUniformLocation(program, 'uPassAlpha');
+    const uPassGlow = gl.getUniformLocation(program, 'uPassGlow');
+    const uGlowTint = gl.getUniformLocation(program, 'uGlowTint');
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+
+    const vertexCapacity = MAX_SHAPES * (MAX_SEGMENTS + 2) * STRIDE * 2;
+    const vertexData = new Float32Array(vertexCapacity);
+
+    gl.enableVertexAttribArray(aPos);
+    gl.enableVertexAttribArray(aCenter);
+    gl.enableVertexAttribArray(aColor);
+    gl.enableVertexAttribArray(aMeta);
+    function bindPointers() {
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, STRIDE * 4, 0);
+      gl.vertexAttribPointer(aCenter, 2, gl.FLOAT, false, STRIDE * 4, 2 * 4);
+      gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, STRIDE * 4, 4 * 4);
+      gl.vertexAttribPointer(aMeta, 2, gl.FLOAT, false, STRIDE * 4, 8 * 4);
+    }
+    bindPointers();
+
+    gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.enable(gl.BLEND);
+
+    function fillBackground() {
+      const bg = hexToRgb(getBackgroundColor());
+      gl.clearColor(bg.r / 255, bg.g / 255, bg.b / 255, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    function buildVertices() {
+      let offset = 0;
+      drawRanges.length = 0;
+      const segments = polygonCount;
+      const groups = [backShapes, frontShapes, frontAccents];
+      for (let gi = 0; gi < groups.length; gi++) {
+        const list = groups[gi];
+        for (let i = 0; i < list.length; i++) {
+          const shape = list[i];
+          const role = themeColors[shape.colorRole] || themeColors.primary;
+          const brightness = shape.brightness || 0;
+          const color = layerColor(shape.layer, role, brightness);
+          const glow = shape.layer === 'back' ? 0.24 : 0.58;
+          const alphaMul = shape.layer === 'back' ? 0.72 : 1.0;
+          const start = offset / STRIDE;
+          offset = shape.writeVertices(vertexData, offset, segments, color, alphaMul, glow, shape.layer === 'back' ? 0.0 : 1.0);
+          drawRanges.push({ start, count: segments + 2, shape });
+        }
+      }
+      return offset;
+    }
+
+    function setGlowTint() {
+      const tint = amoledMode ? { r: 255, g: 255, b: 255 } : hexToRgb(themeColors.primary);
+      gl.uniform3f(uGlowTint, tint.r / 255, tint.g / 255, tint.b / 255);
+    }
+
+    function render() {
+      if (isPaused) return;
+      try {
+        readSettings();
+        updateShapesCount();
+        currentStrokeWidth += (targetStrokeWidth - currentStrokeWidth) * 0.1;
+        introPulse += (0 - introPulse) * 0.05;
+        fillBackground();
+        setGlowTint();
+
+        for (const s of backShapes) s.update(backShapes);
+        for (const s of frontShapes) s.update(allFrontCache);
+        for (const s of frontAccents) s.update(allFrontCache);
+
+        const byteLength = buildVertices();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexData.subarray(0, byteLength), gl.DYNAMIC_DRAW);
+        bindPointers();
+
+        const perShapeVerts = polygonCount + 2;
+        for (let i = 0; i < drawRanges.length; i++) {
+          const r = drawRanges[i];
+          const shape = r.shape;
+          const alpha = amoledMode ? (shape.layer === 'back' ? 0.52 : 0.88) : 1.0;
+          const glow = amoledMode ? 0.10 : (shape.layer === 'back' ? 0.22 : 0.55);
+
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+          gl.uniform1f(uPassScale, shape.layer === 'back' ? 1.08 : 1.12);
+          gl.uniform1f(uPassAlpha, alpha * 0.22);
+          gl.uniform1f(uPassGlow, glow);
+          gl.drawArrays(gl.TRIANGLE_FAN, r.start, perShapeVerts);
+
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          gl.uniform1f(uPassScale, 1.0);
+          gl.uniform1f(uPassAlpha, alpha);
+          gl.uniform1f(uPassGlow, 0.0);
+          gl.drawArrays(gl.TRIANGLE_FAN, r.start, perShapeVerts);
+        }
+      } catch (e) {
+        console.error('Render error:', e);
+      }
+      requestAnimationFrame(render);
+    }
+
+    function updateThemeFromMetadata(data) {
+      if (!data) return;
+      if (data.accentColors) {
+        lastSystemAccent = data.accentColors;
+      }
+      applyThemeColors(lastSystemAccent);
+      readSettings();
+      isLocked = !data.isUnlocked || data.screen === 'lock';
+      targetStrokeWidth = isLocked ? 6.0 : 0.0;
+      introPulse = 1;
+      document.body.style.backgroundColor = getBackgroundColor();
+      if (typeof window.triggerAnimation === 'function') {
+        try { window.triggerAnimation(); } catch (_) {}
+      }
+    }
+
+    function wakeShapes() {
+      if (motionDisabled) return;
+      const wake = shape => {
+        shape.vx = (Math.random() - 0.5) * 12.0 * animationSpeed;
+        shape.vy = (Math.random() - 0.5) * 12.0 * animationSpeed;
+        shape.vRot += (Math.random() - 0.5) * 0.1 * animationSpeed;
+      };
+      for (const s of backShapes) wake(s);
+      for (const s of frontShapes) wake(s);
+      for (const s of frontAccents) wake(s);
+    }
+
+    function pauseWallpaper() { isPaused = true; }
+    function resumeWallpaper() {
+      if (!isPaused) return;
+      isPaused = false;
+      requestAnimationFrame(render);
+    }
+
+    window.triggerAnimation = function triggerAnimation() {
+      introPulse = 1;
+      document.body.classList.remove('intro');
+      void document.body.offsetWidth;
+      document.body.classList.add('intro');
+    };
+
+    function onUpdate(e) {
+      readSettings();
+      updateThemeFromMetadata(e && e.detail ? e.detail : safeMeta());
+    }
+
+    function setPointer(x, y) {
+      pointer.x = x;
+      pointer.y = y;
+      pointer.active = true;
+      clearTimeout(pointer.timeout);
+      pointer.timeout = setTimeout(() => pointer.active = false, 300);
+    }
+
+    window.addEventListener('pointermove', e => setPointer(e.clientX, e.clientY), { passive: true });
+    window.addEventListener('pointerdown', e => {
+      setPointer(e.clientX, e.clientY);
+      const repelRadius = 320;
+      const apply = shape => {
+        const dx = shape.x - pointer.x;
+        const dy = shape.y - pointer.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < repelRadius && dist > 0) {
+          const force = Math.pow(1 - dist / repelRadius, 2);
+          if (!motionDisabled) {
+            shape.vx += (dx / dist) * force * 7;
+            shape.vy += (dy / dist) * force * 7;
+          }
+          shape.springVel += force * 0.12;
+          shape.brightness = Math.max(shape.brightness || 0, force * 0.6);
+        }
+      };
+      for (const s of backShapes) apply(s);
+      for (const s of frontShapes) apply(s);
+      for (const s of frontAccents) apply(s);
+    }, { passive: true });
+    window.addEventListener('pointerup', () => pointer.active = false, { passive: true });
+    window.addEventListener('pointercancel', () => pointer.active = false, { passive: true });
+
+    // Слушатели событий изменения настроек
+    window.addEventListener('wallpaperEngineReady', onUpdate);
+    window.addEventListener('wallpaperSettingsChange', onUpdate);
+    window.addEventListener('wallpaperUpdate', onUpdate);
+    window.addEventListener('wallpaperUnlock', onUpdate);
+    window.addEventListener('wallpaperThemeChange', onUpdate);
+    window.addEventListener('wallpaperScreenOn', e => { onUpdate(e); wakeShapes(); });
+    window.addEventListener('wallpaperCharging', onUpdate);
+    window.addEventListener('wallpaperDischarging', onUpdate);
+    window.addEventListener('wallpaperScreenOff', onUpdate);
+    window.addEventListener('wallpaperPause', pauseWallpaper);
+    window.addEventListener('wallpaperResume', resumeWallpaper);
+
+    window.addEventListener('wallpaperGyroscope', e => {
+      const d = e && e.detail ? e.detail : null;
+      if (!d || motionDisabled) return;
+      const tiltX = clamp((d.roll || 0) * 0.02, -0.15, 0.15);
+      const tiltY = clamp((d.pitch || 0) * 0.02, -0.15, 0.15);
+      for (const s of backShapes) { s.x += tiltX; s.y += tiltY; }
+      for (const s of frontShapes) { s.x += tiltX * 0.7; s.y += tiltY * 0.7; }
+    }, { passive: true });
+
+    window.addEventListener('wallpaperOffset', e => {
+      const d = e && e.detail ? e.detail : null;
+      if (!d || motionDisabled) return;
+      const ox = clamp((d.xOffset || 0) * 18, -14, 14);
+      const oy = clamp((d.yOffset || 0) * 12, -10, 10);
+      for (const s of backShapes) { s.x += ox * 0.35; s.y += oy * 0.35; }
+      for (const s of frontShapes) { s.x += ox * 0.75; s.y += oy * 0.75; }
+    }, { passive: true });
+
+    function boot() {
+      resizeCanvas();
+      readSettings();
+      updateShapesCount();
+      document.body.style.backgroundColor = getBackgroundColor();
+      const meta = safeMeta();
+      if (meta) updateThemeFromMetadata(meta);
+      requestAnimationFrame(render);
+    }
+
+    window.addEventListener('resize', resizeCanvas, { passive: true });
+    boot();
+  })();
+  </script>
+</body>
+</html>

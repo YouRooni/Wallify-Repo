@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Настройки обоев</title>
+<style>
+  :root {
+    --bg: #141218;
+    --surface: #1d1b20;
+    --surface-container: #211f26;
+    --surface-container-high: #2b2930;
+    --surface-container-highest: #36343b;
+    --primary: #d0bcff;
+    --on-primary: #381e72;
+    --primary-container: #4f378b;
+    --secondary: #ccc2dc;
+    --tertiary: #efb8c8;
+    --on-surface: #e6e0e9;
+    --on-surface-variant: #cac4d0;
+    --outline: #49454f;
+    --outline-variant: #38353d;
+    
+    /* Новые переменные для красного акцента (Error) из Material You */
+    --error: #ffb4ab;
+    --on-error: #690005;
+    --error-container: #93000a;
+    --on-error-container: #ffdad6;
+
+    --shape-xl: 28px;
+    --shape-l: 20px;
+    --shape-m: 14px;
+    --shape-full: 999px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Плавный переход при смене акцентных цветов системы (событие wallpaperUpdate) */
+  body, .card, .setting-item, .color-row, .range-container,
+  .slider-switch, .slider-switch:before, input[type="range"], .range-value,
+  .section-title, .section-title .dot, .page-header .eyebrow,
+  .spread-hint, .spread-hint .bar, .color-swatch-wrap, footer, .btn-reset {
+    transition: background-color .3s ease, color .3s ease, border-color .3s ease, box-shadow .3s ease;
+  }
+
+  html, body {
+    background: var(--bg);
+  }
+
+  body {
+    font-family: "Google Sans Text", Roboto, system-ui, -apple-system, sans-serif;
+    color: var(--on-surface);
+    padding: 20px 16px 40px;
+    font-size: 14px;
+    line-height: 1.4;
+    min-height: 100%;
+  }
+
+  .page-header {
+    padding: 8px 8px 20px;
+  }
+
+  .page-header .eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  .page-header h1 {
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    color: var(--on-surface);
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+    margin: 28px 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title:first-of-type {
+    margin-top: 0;
+  }
+
+  .section-title .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    flex-shrink: 0;
+  }
+
+  .card {
+    background: var(--surface-container);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--shape-xl) var(--shape-xl) var(--shape-m) var(--shape-xl);
+    padding: 6px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+
+  .setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  .setting-item:last-child {
+    border-bottom: none;
+  }
+
+  .setting-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .setting-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--on-surface);
+  }
+
+  .setting-desc {
+    font-size: 12.5px;
+    color: var(--on-surface-variant);
+    margin-top: 3px;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider-switch {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: var(--surface-container-highest);
+    border: 2px solid var(--outline);
+    transition: background-color .2s ease, border-color .2s ease;
+    border-radius: var(--shape-full);
+  }
+
+  .slider-switch:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 6px;
+    top: 7px;
+    background-color: var(--outline);
+    transition: transform .22s cubic-bezier(.34, 1.56, .64, 1), width .18s ease, height .18s ease, left .18s ease, top .18s ease, background-color .2s ease;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider-switch {
+    background-color: var(--primary);
+    border-color: var(--primary);
+  }
+
+  input:checked + .slider-switch:before {
+    width: 22px;
+    height: 22px;
+    left: 24px;
+    top: 3px;
+    background-color: var(--on-primary);
+  }
+
+  .range-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  .range-container:last-child {
+    border-bottom: none;
+  }
+
+  .range-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+
+  .range-header .setting-title {
+    flex: 1;
+  }
+
+  .range-value {
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--surface-container-high);
+    padding: 2px 10px;
+    border-radius: var(--shape-full);
+    font-size: 12.5px;
+    flex-shrink: 0;
+    min-width: 42px;
+    text-align: center;
+  }
+
+  .range-desc {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    margin-top: -4px;
+    margin-bottom: 8px;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 16px;
+    border-radius: var(--shape-full);
+    background: var(--surface-container-highest);
+    outline: none;
+    margin: 4px 0;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 12px;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: border-radius .18s ease, transform .12s ease;
+  }
+
+  input[type="range"]:active::-webkit-slider-thumb {
+    border-radius: var(--shape-full);
+    transform: scale(1.05);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border-radius: 12px;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  }
+
+  .range-pair {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .range-pair-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .range-pair-row .pair-label {
+    font-size: 12px;
+    color: var(--on-surface-variant);
+    width: 34px;
+    flex-shrink: 0;
+  }
+
+  .range-pair-row input[type="range"] {
+    flex: 1;
+  }
+
+  .range-pair-row .range-value {
+    min-width: 40px;
+  }
+
+  .spread-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--tertiary);
+    margin-top: 2px;
+    margin-bottom: 6px;
+  }
+
+  .spread-hint .bar {
+    height: 4px;
+    width: 40px;
+    border-radius: var(--shape-full);
+    background: linear-gradient(90deg, var(--surface-container-highest), var(--tertiary));
+  }
+
+  .color-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--outline-variant);
+    gap: 12px;
+    transition: opacity .2s ease;
+  }
+
+  .color-row:last-child {
+    border-bottom: none;
+  }
+
+  .color-row.is-disabled {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .color-swatch-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 2px solid var(--outline-variant);
+  }
+
+  .color-swatch-wrap input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    position: absolute;
+    inset: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    background: none;
+  }
+
+  .color-swatch-wrap input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .color-swatch-wrap input[type="color"]::-webkit-color-swatch {
+    border: none;
+  }
+
+  /* Стили кнопки сброса */
+  .btn-reset {
+    display: block;
+    width: 100%;
+    margin-top: 32px;
+    padding: 16px;
+    background: var(--error-container);
+    color: var(--on-error-container);
+    border: none;
+    border-radius: var(--shape-full);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+
+  .btn-reset:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+
+  footer {
+    text-align: center;
+    color: var(--on-surface-variant);
+    font-size: 11.5px;
+    margin-top: 24px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+  <div class="page-header">
+    <div class="eyebrow">Material 3 Expressive</div>
+    <h1>Настройки обоев</h1>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Оформление</div>
+  <div class="card">
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-title">AMOLED режим</div>
+        <div class="setting-desc">Чистый чёрный фон для экономии энергии</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="amoledMode">
+        <span class="slider-switch"></span>
+      </label>
+    </div>
+
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-title">Отключить движение</div>
+        <div class="setting-desc">Зафиксировать фигуры на месте</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="disableMotion">
+        <span class="slider-switch"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Акцентные цвета</div>
+  <div class="card">
+    <div class="setting-item">
+      <div class="setting-info">
+        <div class="setting-title">Свои акцентные цвета</div>
+        <div class="setting-desc">Иначе используется системная палитра Material You (accentColors устройства)</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="useCustomColors">
+        <span class="slider-switch"></span>
+      </label>
+    </div>
+
+    <div class="color-row" id="row-customPrimaryColor">
+      <div class="setting-info">
+        <div class="setting-title">Primary</div>
+        <div class="setting-desc">Основной акцент фигур</div>
+      </div>
+      <div class="color-swatch-wrap">
+        <input type="color" id="customPrimaryColor" value="#D0BCFF">
+      </div>
+    </div>
+
+    <div class="color-row" id="row-customSecondaryColor">
+      <div class="setting-info">
+        <div class="setting-title">Secondary</div>
+        <div class="setting-desc">Вторичный акцент</div>
+      </div>
+      <div class="color-swatch-wrap">
+        <input type="color" id="customSecondaryColor" value="#CCC2DC">
+      </div>
+    </div>
+
+    <div class="color-row" id="row-customTertiaryColor">
+      <div class="setting-info">
+        <div class="setting-title">Tertiary</div>
+        <div class="setting-desc">Третичный акцент</div>
+      </div>
+      <div class="color-swatch-wrap">
+        <input type="color" id="customTertiaryColor" value="#EFB8C8">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Геометрия и качество</div>
+  <div class="card">
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Количество полигонов</span>
+        <span class="range-value" id="val-polygonCount">96</span>
+      </div>
+      <input type="range" id="polygonCount" min="12" max="96" step="2" value="96">
+    </div>
+
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Фигуры на переднем плане</span>
+        <span class="range-value" id="val-frontShapeCount">3</span>
+      </div>
+      <input type="range" id="frontShapeCount" min="0" max="20" step="1" value="3">
+    </div>
+
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Фигуры на заднем плане</span>
+        <span class="range-value" id="val-backShapeCount">2</span>
+      </div>
+      <input type="range" id="backShapeCount" min="0" max="20" step="1" value="2">
+    </div>
+
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Акцентные фигуры</span>
+        <span class="range-value" id="val-accentShapeCount">3</span>
+      </div>
+      <div class="range-desc">Мелкие круги-квадраты поверх переднего плана. 0 — полностью отключить.</div>
+      <input type="range" id="accentShapeCount" min="0" max="12" step="1" value="3">
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Размер фигур</div>
+  <div class="card">
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Передние фигуры</span>
+      </div>
+      <div class="spread-hint"><span class="bar"></span>случайный размер в диапазоне</div>
+      <div class="range-pair">
+        <div class="range-pair-row">
+          <span class="pair-label">Мин.</span>
+          <input type="range" id="frontShapeSizeMin" min="8" max="100" step="1" value="50">
+          <span class="range-value" id="val-frontShapeSizeMin">50</span>
+        </div>
+        <div class="range-pair-row">
+          <span class="pair-label">Макс.</span>
+          <input type="range" id="frontShapeSizeMax" min="8" max="160" step="1" value="110">
+          <span class="range-value" id="val-frontShapeSizeMax">110</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Задние фигуры</span>
+      </div>
+      <div class="spread-hint"><span class="bar"></span>случайный размер в диапазоне</div>
+      <div class="range-pair">
+        <div class="range-pair-row">
+          <span class="pair-label">Мин.</span>
+          <input type="range" id="backShapeSizeMin" min="20" max="150" step="1" value="120">
+          <span class="range-value" id="val-backShapeSizeMin">120</span>
+        </div>
+        <div class="range-pair-row">
+          <span class="pair-label">Макс.</span>
+          <input type="range" id="backShapeSizeMax" min="20" max="220" step="1" value="220">
+          <span class="range-value" id="val-backShapeSizeMax">220</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Акцентные фигуры</span>
+      </div>
+      <div class="spread-hint"><span class="bar"></span>случайный размер в диапазоне</div>
+      <div class="range-pair">
+        <div class="range-pair-row">
+          <span class="pair-label">Мин.</span>
+          <input type="range" id="accentShapeSizeMin" min="6" max="40" step="1" value="14">
+          <span class="range-value" id="val-accentShapeSizeMin">14</span>
+        </div>
+        <div class="range-pair-row">
+          <span class="pair-label">Макс.</span>
+          <input type="range" id="accentShapeSizeMax" min="6" max="60" step="1" value="50">
+          <span class="range-value" id="val-accentShapeSizeMax">50</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Форма фигур</div>
+  <div class="card">
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Углы передних фигур</span>
+      </div>
+      <div class="range-desc">Количество "лепестков" контура — случайное значение в этом диапазоне у каждой фигуры.</div>
+      <div class="spread-hint"><span class="bar"></span>разброс количества углов</div>
+      <div class="range-pair">
+        <div class="range-pair-row">
+          <span class="pair-label">Мин.</span>
+          <input type="range" id="frontLobesMin" min="1" max="10" step="1" value="2">
+          <span class="range-value" id="val-frontLobesMin">2</span>
+        </div>
+        <div class="range-pair-row">
+          <span class="pair-label">Макс.</span>
+          <input type="range" id="frontLobesMax" min="1" max="12" step="1" value="5">
+          <span class="range-value" id="val-frontLobesMax">5</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Углы задних фигур</span>
+      </div>
+      <div class="range-desc">Задний план обычно спокойнее — меньше углов даёт более гладкие силуэты.</div>
+      <div class="spread-hint"><span class="bar"></span>разброс количества углов</div>
+      <div class="range-pair">
+        <div class="range-pair-row">
+          <span class="pair-label">Мин.</span>
+          <input type="range" id="backLobesMin" min="1" max="10" step="1" value="1">
+          <span class="range-value" id="val-backLobesMin">1</span>
+        </div>
+        <div class="range-pair-row">
+          <span class="pair-label">Макс.</span>
+          <input type="range" id="backLobesMax" min="1" max="12" step="1" value="4">
+          <span class="range-value" id="val-backLobesMax">4</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Прозрачность</div>
+  <div class="card">
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Затемнение заднего плана</span>
+        <span class="range-value" id="val-backDarkness">85%</span>
+      </div>
+      <div class="range-desc">Базовая яркость задних и передних фигур одинакова — этот ползунок отдельно приглушает задний план.</div>
+      <input type="range" id="backDarkness" min="0" max="100" step="5" value="85">
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dot"></span>Динамика</div>
+  <div class="card">
+    <div class="range-container">
+      <div class="range-header">
+        <span class="setting-title">Скорость движения</span>
+        <span class="range-value" id="val-speed">0.5x</span>
+      </div>
+      <input type="range" id="speed" min="0.2" max="2.5" step="0.1" value="0.5">
+    </div>
+  </div>
+
+  <button class="btn-reset" id="resetBtn">Сбросить настройки</button>
+
+  <footer>Material You · настройки применяются мгновенно</footer>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const HEX_RE = /^#[0-9a-fA-F]{6}$/;
+
+    // Добавлены маппинги для error-цветов
+    const accentVarMap = [
+      ['--bg', ['background']],
+      ['--surface', ['surface']],
+      ['--surface-container', ['surfaceContainerLow', 'surfaceContainer']],
+      ['--surface-container-high', ['surfaceContainer', 'surfaceContainerHigh']],
+      ['--surface-container-highest', ['surfaceContainerHighest', 'surfaceContainerHigh']],
+      ['--primary', ['primary']],
+      ['--on-primary', ['onPrimary']],
+      ['--primary-container', ['primaryContainer']],
+      ['--secondary', ['secondary']],
+      ['--tertiary', ['tertiary']],
+      ['--on-surface', ['onSurface', 'onBackground']],
+      ['--on-surface-variant', ['onSurfaceVariant']],
+      ['--outline', ['outline']],
+      ['--outline-variant', ['outlineVariant']],
+      ['--error', ['error']],
+      ['--on-error', ['onError']],
+      ['--error-container', ['errorContainer']],
+      ['--on-error-container', ['onErrorContainer']]
+    ];
+
+    function applyAccentColors(accentColors) {
+      if (!accentColors || typeof accentColors !== 'object') return;
+      const root = document.documentElement.style;
+
+      accentVarMap.forEach(([cssVar, keys]) => {
+        for (const key of keys) {
+          const val = accentColors[key];
+          if (typeof val === 'string' && HEX_RE.test(val)) {
+            root.setProperty(cssVar, val);
+            return;
+          }
+        }
+      });
+    }
+
+    window.addEventListener('wallpaperUpdate', (e) => {
+      if (e.detail && e.detail.accentColors) {
+        applyAccentColors(e.detail.accentColors);
+      }
+    });
+
+    function getSetting(key, def) {
+      if (window.WallpaperEngine && typeof window.WallpaperEngine.getSetting === 'function') {
+        return window.WallpaperEngine.getSetting(key, String(def));
+      }
+      return String(def);
+    }
+
+    function saveSetting(key, val) {
+      if (window.WallpaperEngine && typeof window.WallpaperEngine.saveSetting === 'function') {
+        window.WallpaperEngine.saveSetting(key, String(val));
+      }
+    }
+
+    const rangePairs = [
+      ['frontShapeSizeMin', 'frontShapeSizeMax'],
+      ['backShapeSizeMin', 'backShapeSizeMax'],
+      ['accentShapeSizeMin', 'accentShapeSizeMax'],
+      ['frontLobesMin', 'frontLobesMax'],
+      ['backLobesMin', 'backLobesMax']
+    ];
+
+    // Обновлены значения 'def' в соответствии со скриншотом
+    const settings = [
+      { id: 'amoledMode', type: 'bool', def: 'false' },
+      { id: 'disableMotion', type: 'bool', def: 'false' },
+      { id: 'useCustomColors', type: 'bool', def: 'false' },
+      { id: 'customPrimaryColor', type: 'color', def: '#D0BCFF' },
+      { id: 'customSecondaryColor', type: 'color', def: '#CCC2DC' },
+      { id: 'customTertiaryColor', type: 'color', def: '#EFB8C8' },
+      { id: 'polygonCount', type: 'range', def: '96', unit: '' },
+      { id: 'frontShapeCount', type: 'range', def: '3', unit: '' },
+      { id: 'backShapeCount', type: 'range', def: '2', unit: '' },
+      { id: 'accentShapeCount', type: 'range', def: '3', unit: '' },
+      { id: 'frontShapeSizeMin', type: 'range', def: '50', unit: '' },
+      { id: 'frontShapeSizeMax', type: 'range', def: '110', unit: '' },
+      { id: 'backShapeSizeMin', type: 'range', def: '120', unit: '' },
+      { id: 'backShapeSizeMax', type: 'range', def: '220', unit: '' },
+      { id: 'accentShapeSizeMin', type: 'range', def: '14', unit: '' },
+      { id: 'accentShapeSizeMax', type: 'range', def: '50', unit: '' },
+      { id: 'frontLobesMin', type: 'range', def: '2', unit: '' },
+      { id: 'frontLobesMax', type: 'range', def: '5', unit: '' },
+      { id: 'backLobesMin', type: 'range', def: '1', unit: '' },
+      { id: 'backLobesMax', type: 'range', def: '4', unit: '' },
+      { id: 'backDarkness', type: 'range', def: '85', unit: '%' },
+      { id: 'speed', type: 'range', def: '0.5', unit: 'x' }
+    ];
+
+    const customColorRowIds = ['row-customPrimaryColor', 'row-customSecondaryColor', 'row-customTertiaryColor'];
+
+    function refreshCustomColorRows() {
+      const toggle = document.getElementById('useCustomColors');
+      const enabled = !!(toggle && toggle.checked);
+      customColorRowIds.forEach(id => {
+        const row = document.getElementById(id);
+        if (row) row.classList.toggle('is-disabled', !enabled);
+      });
+    }
+
+    function enforcePairConstraint(minId, maxId) {
+      const minEl = document.getElementById(minId);
+      const maxEl = document.getElementById(maxId);
+      if (!minEl || !maxEl) return;
+
+      const clampPair = (changed) => {
+        let minVal = parseFloat(minEl.value);
+        let maxVal = parseFloat(maxEl.value);
+        if (minVal > maxVal) {
+          if (changed === 'min') {
+            maxVal = minVal;
+            maxEl.value = maxVal;
+          } else {
+            minVal = maxVal;
+            minEl.value = minVal;
+          }
+        }
+        return { minVal, maxVal };
+      };
+
+      minEl.addEventListener('input', () => {
+        const { minVal, maxVal } = clampPair('min');
+        updateLabel(minId, minVal);
+        updateLabel(maxId, maxVal);
+        saveSetting(minId, minVal);
+        saveSetting(maxId, maxVal);
+      });
+
+      maxEl.addEventListener('input', () => {
+        const { minVal, maxVal } = clampPair('max');
+        updateLabel(minId, minVal);
+        updateLabel(maxId, maxVal);
+        saveSetting(minId, minVal);
+        saveSetting(maxId, maxVal);
+      });
+    }
+
+    function updateLabel(id, value) {
+      const unit = (settings.find(s => s.id === id) || {}).unit || '';
+      const label = document.getElementById('val-' + id);
+      if (label) label.textContent = value + unit;
+    }
+    
+    // Функция сброса настроек на значения по умолчанию (def)
+    function resetSettings() {
+      settings.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (!el) return;
+
+        if (s.type === 'bool') {
+          el.checked = s.def === 'true';
+          saveSetting(s.id, s.def);
+        } else if (s.type === 'range') {
+          el.value = s.def;
+          updateLabel(s.id, s.def);
+          saveSetting(s.id, s.def);
+        } else if (s.type === 'color') {
+          el.value = s.def;
+          saveSetting(s.id, s.def);
+        }
+      });
+
+      refreshCustomColorRows();
+    }
+
+    function init() {
+      settings.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (!el) return;
+
+        const savedVal = getSetting(s.id, s.def);
+
+        if (s.type === 'bool') {
+          el.checked = savedVal === 'true';
+          el.onchange = () => {
+            saveSetting(s.id, el.checked ? 'true' : 'false');
+            if (s.id === 'useCustomColors') refreshCustomColorRows();
+          };
+        } else if (s.type === 'range') {
+          el.value = savedVal;
+          updateLabel(s.id, savedVal);
+
+          el.oninput = () => {
+            updateLabel(s.id, el.value);
+            saveSetting(s.id, el.value);
+          };
+        } else if (s.type === 'color') {
+          el.value = savedVal;
+          el.oninput = () => {
+            saveSetting(s.id, el.value);
+          };
+        }
+      });
+
+      rangePairs.forEach(([minId, maxId]) => enforcePairConstraint(minId, maxId));
+      refreshCustomColorRows();
+      
+      // Инициализация кнопки сброса
+      const resetBtn = document.getElementById('resetBtn');
+      if(resetBtn) {
+        resetBtn.addEventListener('click', resetSettings);
+      }
+    }
+
+    window.addEventListener('wallpaperEngineReady', init);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!window.WallpaperEngine) {
+        init();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

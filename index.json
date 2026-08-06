@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-04T13:15:13Z",
+  "updatedAt": "2026-08-06T11:32:23Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -415,6 +415,22 @@
       "createdAt": "2026-08-04T13:15:13Z",
       "updatedAt": "2026-08-04T13:15:13Z",
       "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/prism.zip"
+    },
+    {
+      "id": "M3e Shapes lite",
+      "name": "M3e Shapes lite",
+      "author": "Pavlk",
+      "version": "2.0.0",
+      "description": "Плавающие фигуры Material 3 Expressive с адаптивной палитрой Material You, случайными формами, размерами и настройкой акцентных цветов.",
+      "path": "wallpapers/M3e Shapes lite",
+      "main": "index.html",
+      "useGyroscope": false,
+      "isLite": true,
+      "cover": "cover.png",
+      "icon": "icon.png",
+      "createdAt": "2026-08-06T11:32:23Z",
+      "updatedAt": "2026-08-06T11:32:23Z",
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/M3e Shapes lite.zip"
     }
   ]
 }
