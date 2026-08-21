@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-19T16:10:52Z",
+  "updatedAt": "2026-08-21T10:35:24Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -237,7 +237,7 @@
       "id": "mini-orbit",
       "name": "Mini Orbit",
       "author": "Artho",
-      "version": "1.3.5",
+      "version": "1.7.1",
       "description": "Минималистичная космическая система с планетой и вращающимися лунами",
       "path": "wallpapers/mini-orbit",
       "main": "index.html",
@@ -254,7 +254,7 @@
         "planet"
       ],
       "createdAt": "2026-08-01T05:20:18Z",
-      "updatedAt": "2026-08-02T06:07:26Z",
+      "updatedAt": "2026-08-21T10:35:24Z",
       "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/mini-orbit.zip"
     },
     {
