@@ -2,7 +2,7 @@
   "name": "Mini Orbit",
   "description": "Минималистичная космическая система с планетой и вращающимися лунами",
   "author": "Artho",
-  "version": "1.3.5",
+  "version": "1.7.1",
   "minAppVersion": ">=1.0.0",
   "main": "index.html",
   "settingsPath": "settings/index.html",
@@ -20,10 +20,13 @@
     "moonCount": "2",
     "ringCount": "1",
     "orbitSpeed": "1",
+    "orbitDirection": "clockwise",
     "showStars": "true",
+    "moonShadows": "true",
     "shootingStars": "true",
     "shootingStarFrequency": "rare",
-    "shootingStarCount": "1"
+    "shootingStarCount": "1",
+    "spaceDust": "medium"
   },
   "cover": "cover.jpg",
   "icon": "icon.png",
@@ -33,5 +36,5 @@
     "space", 
     "moon", 
     "planet"
-    ]
+  ]
 }
