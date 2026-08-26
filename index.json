@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-26T10:56:37Z",
+  "updatedAt": "2026-08-26T11:07:16Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -16,7 +16,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-27T17:30:00Z",
       "updatedAt": "2026-07-29T10:54:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/fluids.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/fluids.zip"
     },
     {
       "id": "m3-shapes-dynamic",
@@ -32,7 +32,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-25T17:52:01Z",
       "updatedAt": "2026-07-29T10:54:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/m3-shapes-dynamic.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-shapes-dynamic.zip"
     },
     {
       "id": "m3-shapes-lite",
@@ -48,7 +48,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-26T20:30:00Z",
       "updatedAt": "2026-07-29T10:54:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/m3-shapes-lite.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-shapes-lite.zip"
     },
     {
       "id": "photo-blur-dynamics",
@@ -64,7 +64,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-26T20:30:00Z",
       "updatedAt": "2026-07-29T10:54:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/photo-blur-dynamics.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/photo-blur-dynamics.zip"
     },
     {
       "id": "shape-3",
@@ -80,7 +80,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-27T15:06:03Z",
       "updatedAt": "2026-08-02T08:19:53Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/shape-3.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/shape-3.zip"
     },
     {
       "id": "yui-material",
@@ -105,7 +105,7 @@
       ],
       "createdAt": "2026-07-27T15:21:09Z",
       "updatedAt": "2026-08-02T06:07:09Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/yui-material.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/yui-material.zip"
     },
     {
       "id": "m3e-shapes",
@@ -121,7 +121,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-28T10:25:10Z",
       "updatedAt": "2026-07-29T10:54:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/m3e-shapes.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3e-shapes.zip"
     },
     {
       "id": "frosted-ice-cubes",
@@ -137,7 +137,7 @@
       "icon": "icon.png",
       "createdAt": "2026-07-28T21:59:29Z",
       "updatedAt": "2026-07-29T10:54:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/frosted-ice-cubes.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/frosted-ice-cubes.zip"
     },
     {
       "id": "material-flow",
@@ -167,7 +167,7 @@
       ],
       "createdAt": "2026-07-29T20:09:49Z",
       "updatedAt": "2026-07-30T11:12:22Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/material-flow.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/material-flow.zip"
     },
     {
       "id": "DVD-Bouncers",
@@ -193,7 +193,7 @@
       ],
       "createdAt": "2026-07-30T08:51:19Z",
       "updatedAt": "2026-07-31T15:24:47Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/DVD-Bouncers.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/DVD-Bouncers.zip"
     },
     {
       "id": "Battery-fill",
@@ -215,7 +215,7 @@
       ],
       "createdAt": "2026-07-30T21:41:35Z",
       "updatedAt": "2026-07-31T15:24:47Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/Battery-fill.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/Battery-fill.zip"
     },
     {
       "id": "paper-shards",
@@ -231,7 +231,7 @@
       "icon": "cover.jpg",
       "createdAt": "2026-07-31T09:18:49Z",
       "updatedAt": "2026-07-31T09:18:49Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/paper-shards.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/paper-shards.zip"
     },
     {
       "id": "mini-orbit",
@@ -255,7 +255,7 @@
       ],
       "createdAt": "2026-08-01T05:20:18Z",
       "updatedAt": "2026-08-21T10:35:24Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/mini-orbit.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/mini-orbit.zip"
     },
     {
       "id": "EmoiWaves",
@@ -272,7 +272,7 @@
       "supportsMonet": true,
       "createdAt": "2026-08-01T15:25:32Z",
       "updatedAt": "2026-08-01T15:25:32Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/EmoiWaves.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/EmoiWaves.zip"
     },
     {
       "id": "monet-green-orbit",
@@ -318,7 +318,7 @@
       ],
       "createdAt": "2026-08-02T14:11:03Z",
       "updatedAt": "2026-08-02T14:11:03Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/monet-green-orbit.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/monet-green-orbit.zip"
     },
     {
       "id": "particle-web",
@@ -334,7 +334,7 @@
       "icon": "icon.jpg",
       "createdAt": "2026-08-02T18:14:04Z",
       "updatedAt": "2026-08-02T18:14:04Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/particle-web.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/particle-web.zip"
     },
     {
       "id": "topographic-wallpaper",
@@ -350,7 +350,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-03T05:41:55Z",
       "updatedAt": "2026-08-03T21:40:37Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/topographic-wallpaper.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/topographic-wallpaper.zip"
     },
     {
       "id": "bad-apple-wallpaper",
@@ -366,7 +366,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-03T20:49:56Z",
       "updatedAt": "2026-08-04T05:43:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/bad-apple-wallpaper.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/bad-apple-wallpaper.zip"
     },
     {
       "id": "doom-wallpaper",
@@ -382,7 +382,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-04T05:43:43Z",
       "updatedAt": "2026-08-04T05:43:43Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/doom-wallpaper.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/doom-wallpaper.zip"
     },
     {
       "id": "minecraft-wallpaper",
@@ -398,7 +398,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-04T13:15:13Z",
       "updatedAt": "2026-08-04T13:15:13Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/minecraft-wallpaper.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/minecraft-wallpaper.zip"
     },
     {
       "id": "prism",
@@ -414,7 +414,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-04T13:15:13Z",
       "updatedAt": "2026-08-04T13:15:13Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/prism.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/prism.zip"
     },
     {
       "id": "m3e-shapes-lite",
@@ -430,7 +430,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-06T12:33:38Z",
       "updatedAt": "2026-08-06T12:33:38Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/m3e-shapes-lite.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3e-shapes-lite.zip"
     },
     {
       "id": "Lagoon",
@@ -447,7 +447,7 @@
       "supportsMonet": true,
       "createdAt": "2026-08-19T16:10:52Z",
       "updatedAt": "2026-08-19T16:10:52Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/Lagoon.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/Lagoon.zip"
     },
     {
       "id": "m3-expressive-shapes",
@@ -463,7 +463,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-19T16:10:52Z",
       "updatedAt": "2026-08-19T16:10:52Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/m3-expressive-shapes.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-expressive-shapes.zip"
     },
     {
       "id": "m3-expressive-shapes-lite",
@@ -479,7 +479,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-19T16:10:52Z",
       "updatedAt": "2026-08-19T16:10:52Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/m3-expressive-shapes-lite.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-expressive-shapes-lite.zip"
     },
     {
       "id": "android-4-light-grid",
@@ -495,7 +495,7 @@
       "icon": "icon.png",
       "createdAt": "2026-08-26T10:56:37Z",
       "updatedAt": "2026-08-26T10:56:37Z",
-      "downloadUrl": "https://github.com/CrisPixar/Wallify-Repo/releases/download/bundles/android-4-light-grid.zip"
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/android-4-light-grid.zip"
     }
   ]
 }
