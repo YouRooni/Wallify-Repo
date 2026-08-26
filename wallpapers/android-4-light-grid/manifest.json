@@ -1,0 +1,18 @@
+{
+  "name": "Android 4 Light Grid",
+  "description": "Реконструкция живых обоев Android 4: тёмная треугольная сетка и световые неоновые полосы.",
+  "author": "nector",
+  "version": "1.0.2",
+  "minAppVersion": ">=1.0.0",
+  "main": "index.html",
+  "cover": "cover.png",
+  "settingsPath": "settings/index.html",
+  "useGyroscope": true,
+  "isLite": false,
+  "animationDuration": 2.0,
+  "animationDurationUnlock": 1.5,
+  "animationDurationScreenOn": 1.0,
+  "animationDurationScreenOff": 0.25,
+  "animateOn": "both",
+  "icon": "icon.png"
+}
