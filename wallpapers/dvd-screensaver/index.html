@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <canvas id="dvdCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('dvdCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let isPaused = false;
+        let lastTime = performance.now();
+        let reqId;
+
+        // Скорость оригинального DVD: ~12% высоты экрана в секунду
+        const SPEED_RATIO = 0.12; 
+
+        const logo = {
+            width: 170, 
+            height: 75,
+            x: 40,
+            y: 40,
+            vx: 1,
+            vy: 1,
+            color: '#ff0000'
+        };
+
+        const colors = ['#ff0000', '#00ff00', '#0080ff', '#ffff00', '#ff00ff', '#00ffff'];
+
+        const offCanvas = document.createElement('canvas');
+        const offCtx = offCanvas.getContext('2d');
+
+        const logoImg = new Image();
+        logoImg.src = 'DVD.png';
+        
+        logoImg.onload = () => {
+            logo.height = (logoImg.height / logoImg.width) * logo.width;
+            offCanvas.width = logo.width;
+            offCanvas.height = logo.height;
+        };
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Рассчитываем точную скорость для сохранения угла 45° и оригинального темпа
+            const speed = (canvas.height * SPEED_RATIO) / 1000; // пикселей в миллисекунду
+            const dirX = logo.vx >= 0 ? 1 : -1;
+            const dirY = logo.vy >= 0 ? 1 : -1;
+            
+            logo.vx = dirX * speed;
+            logo.vy = dirY * speed;
+        }
+        window.addEventListener('resize', resize);
+
+        function getTintedLogo(color) {
+            offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
+            offCtx.drawImage(logoImg, 0, 0, logo.width, logo.height);
+            offCtx.globalCompositeOperation = 'source-in';
+            offCtx.fillStyle = color;
+            offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+            offCtx.globalCompositeOperation = 'source-over';
+            return offCanvas;
+        }
+
+        function update(time) {
+            if (isPaused) return;
+            const dt = time - lastTime;
+            lastTime = time;
+
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            if (!logoImg.complete || logoImg.naturalWidth === 0) {
+                reqId = requestAnimationFrame(update);
+                return;
+            }
+
+            logo.x += logo.vx * dt;
+            logo.y += logo.vy * dt;
+
+            let bounced = false;
+            
+            if (logo.x <= 0) { 
+                logo.x = 0; logo.vx *= -1; bounced = true; 
+            }
+            if (logo.x + logo.width >= canvas.width) { 
+                logo.x = canvas.width - logo.width; logo.vx *= -1; bounced = true; 
+            }
+            if (logo.y <= 0) { 
+                logo.y = 0; logo.vy *= -1; bounced = true; 
+            }
+            if (logo.y + logo.height >= canvas.height) { 
+                logo.y = canvas.height - logo.height; logo.vy *= -1; bounced = true; 
+            }
+
+            if (bounced) {
+                let newColor;
+                do { 
+                    newColor = colors[Math.floor(Math.random() * colors.length)]; 
+                } while (newColor === logo.color);
+                logo.color = newColor;
+            }
+
+            ctx.drawImage(getTintedLogo(logo.color), logo.x, logo.y);
+            reqId = requestAnimationFrame(update);
+        }
+
+        window.addEventListener('wallpaperPause', () => {
+            isPaused = true;
+            cancelAnimationFrame(reqId);
+        });
+
+        window.addEventListener('wallpaperResume', () => {
+            isPaused = false;
+            lastTime = performance.now();
+            reqId = requestAnimationFrame(update);
+        });
+
+        resize();
+        reqId = requestAnimationFrame(update);
+    </script>
+</body>
+</html>
+
