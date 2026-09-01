@@ -1,1886 +1,402 @@
 <!DOCTYPE html>
-
 <html lang="ru">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mini Orbit — настройки</title>
-
-
-<link
-rel="stylesheet"
-href="wallify-m3.css"
->
-
-
+<link rel="stylesheet" href="wallify-m3.css">
 <style>
-
-
 body {
-
   margin: 0;
-
-  padding:
-    20px
-    16px
-    48px;
-
-
-  background:
-
-    var(
-      --wallify-m3-background,
-      #141218
-    );
-
-
-  color:
-
-    var(
-      --wallify-m3-on-surface,
-      #E6E1E5
-    );
-
-
-  font-family:
-
-    "Roboto",
-    system-ui,
-    sans-serif;
-
+  padding: 20px 16px 48px;
+  background: var(--wallify-m3-background, #141218);
+  color: var(--wallify-m3-on-surface, #E6E1E5);
+  font-family: "Roboto", system-ui, sans-serif;
 }
-
-
-
 h1 {
-
-  margin:
-    4px
-    0
-    2px;
-
-
-  font-size:
-    22px;
-
-
-  line-height:
-    28px;
-
-
-  font-weight:
-    500;
-
+  margin: 4px 0 2px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 500;
 }
-
-
-
 .sub {
-
-  margin:
-    0
-    0
-    24px;
-
-
-  font-size:
-    13px;
-
-
-  color:
-
-    var(
-      --wallify-m3-on-surface-variant,
-      #CAC4D0
-    );
-
+  margin: 0 0 24px;
+  font-size: 13px;
+  color: var(--wallify-m3-on-surface-variant, #CAC4D0);
 }
-
-
-
 .section-title {
-
-  margin:
-
-    24px
-    4px
-    8px;
-
-
-  color:
-
-    var(
-      --wallify-m3-primary,
-      #D0BCFF
-    );
-
-
-  font-size:
-    12px;
-
-
-  line-height:
-    16px;
-
-
-  letter-spacing:
-    0.08em;
-
-
-  text-transform:
-    uppercase;
-
+  margin: 24px 4px 8px;
+  color: var(--wallify-m3-primary, #D0BCFF);
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
-
-
-
 .section-title:first-of-type {
-
-  margin-top:
-    0;
-
+  margin-top: 0;
 }
-
-
-
-/*
-  Палитра
-*/
-
-
 .palette-grid {
-
-  display:
-    grid;
-
-
-  grid-template-columns:
-
-    repeat(
-      2,
-      minmax(
-        0,
-        1fr
-      )
-    );
-
-
-  gap:
-    10px;
-
-
-  margin-top:
-    12px;
-
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
 }
-
-
-
 .palette-option {
-
-  display:
-    flex;
-
-
-  align-items:
-    center;
-
-
-  gap:
-    10px;
-
-
-  min-width:
-    0;
-
-
-  padding:
-    10px;
-
-
-  border:
-
-    1px solid
-
-    color-mix(
-
-      in srgb,
-
-      var(
-        --wallify-m3-outline,
-        #938F99
-      )
-
-      30%,
-
-      transparent
-
-    );
-
-
-  border-radius:
-    16px;
-
-
-  background:
-    transparent;
-
-
-  color:
-
-    var(
-      --wallify-m3-on-surface,
-      #E6E1E5
-    );
-
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--wallify-m3-outline, #938F99) 30%, transparent);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--wallify-m3-on-surface, #E6E1E5);
 }
-
-
-
 .palette-option.active {
-
-  border-color:
-
-    var(
-      --wallify-m3-primary,
-      #D0BCFF
-    );
-
-
-  background:
-
-    color-mix(
-
-      in srgb,
-
-      var(
-        --wallify-m3-primary,
-        #D0BCFF
-      )
-
-      14%,
-
-      transparent
-
-    );
-
+  border-color: var(--wallify-m3-primary, #D0BCFF);
+  background: color-mix(in srgb, var(--wallify-m3-primary, #D0BCFF) 14%, transparent);
 }
-
-
-
 .palette-preview {
-
-  display:
-    grid;
-
-
-  grid-template-columns:
-
-    repeat(
-      2,
-      1fr
-    );
-
-
-  width:
-    42px;
-
-
-  height:
-    42px;
-
-
-  overflow:
-    hidden;
-
-
-  border-radius:
-    11px;
-
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border-radius: 11px;
 }
-
-
-
 .palette-name {
-
-  overflow:
-    hidden;
-
-
-  text-overflow:
-    ellipsis;
-
-
-  white-space:
-    nowrap;
-
-
-  font-size:
-    13px;
-
-
-  font-weight:
-    500;
-
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
 }
-
-
-
-/*
-  Слайдер Wallify M3
-*/
-
-
 .value-pill {
-
-  float:
-    right;
-
-
-  font-size:
-    14px;
-
-
-  font-weight:
-    500;
-
-
-  color:
-
-    var(
-      --wallify-m3-primary,
-      #D0BCFF
-    );
-
+  float: right;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--wallify-m3-primary, #D0BCFF);
 }
-
-
-
 .slider-content {
-
-  gap:
-    8px;
-
+  gap: 8px;
 }
-
-
-
 .disabled {
-
-  opacity:
-    0.45;
-
-
-  pointer-events:
-    none;
-
+  opacity: 0.45;
+  pointer-events: none;
 }
-
 .segmented {
-
-  display:
-    flex;
-
-  gap:
-    4px;
-
-  width:
-    100%;
-
-  margin-top:
-    12px;
-
-  padding:
-    4px;
-
-  border-radius:
-    999px;
-
-  background:
-
-    color-mix(
-
-      in srgb,
-
-      var(
-        --wallify-m3-on-surface,
-        #E6E1E5
-      )
-
-      8%,
-
-      transparent
-
-    );
-
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wallify-m3-on-surface, #E6E1E5) 8%, transparent);
 }
-
-
-
 .segmented button {
-
-  flex:
-    1;
-
-  min-width:
-    0;
-
-
-  padding:
-    8px;
-
-
-  border:
-    none;
-
-
-  border-radius:
-    999px;
-
-
-  background:
-    transparent;
-
-
-  color:
-
-    var(
-      --wallify-m3-on-surface-variant,
-      #CAC4D0
-    );
-
-
-  font:
-    inherit;
-
-
-  font-size:
-    12px;
-
-
-  font-weight:
-    500;
-
-
+  flex: 1;
+  min-width: 0;
+  padding: 8px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--wallify-m3-on-surface-variant, #CAC4D0);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
 }
-
-
-
 .segmented button.active {
-
-
-  background:
-
-    var(
-      --wallify-m3-primary,
-      #D0BCFF
-    );
-
-
-
-  color:
-
-    var(
-      --wallify-m3-on-primary,
-      #381E72
-    );
-
-
+  background: var(--wallify-m3-primary, #D0BCFF);
+  color: var(--wallify-m3-on-primary, #381E72);
 }
-
 </style>
-
 </head>
-
-
 <body>
 
+<h1>Mini Orbit</h1>
+<p class="sub">Настройки космических живых обоев</p>
 
-<h1>
-Mini Orbit
-</h1>
-
-
-<p class="sub">
-Настройки космических живых обоев
-</p>
-
-
-
-<p class="section-title">
-Цвета
-</p>
-
-
+<p class="section-title">Цвета</p>
 <div data-wallify-m3="card-group">
+  <section data-wallify-m3="card">
+    <div class="row">
+      <div class="row-content">
+        <div class="row-title">Material You</div>
+        <div class="row-desc">Использовать системные цвета Android</div>
+      </div>
+      <input id="useMonet" type="checkbox" data-wallify-m3="switch">
+    </div>
+  </section>
 
-
-
-<section data-wallify-m3="card">
-
-
-<div class="row">
-
-
-<div class="row-content">
-
-
-<div class="row-title">
-Material You
+  <section data-wallify-m3="card">
+    <div id="paletteCard" class="row-content">
+      <div class="row-title">Цветовая палитра</div>
+      <div id="palette" class="palette-grid">
+        <button class="palette-option" data-value="violet" type="button">
+          <span class="palette-preview"><span style="background:#090812"></span><span style="background:#E8C5FF"></span><span style="background:#8E79C8"></span><span style="background:#CDB7E9"></span></span>
+          <span class="palette-name">Фиолет</span>
+        </button>
+        <button class="palette-option" data-value="ocean" type="button">
+          <span class="palette-preview"><span style="background:#061018"></span><span style="background:#8ED8FF"></span><span style="background:#347FA8"></span><span style="background:#86CDEB"></span></span>
+          <span class="palette-name">Океан</span>
+        </button>
+        <button class="palette-option" data-value="sunset" type="button">
+          <span class="palette-preview"><span style="background:#16090B"></span><span style="background:#FFB07A"></span><span style="background:#C85C65"></span><span style="background:#F2A07D"></span></span>
+          <span class="palette-name">Закат</span>
+        </button>
+        <button class="palette-option" data-value="forest" type="button">
+          <span class="palette-preview"><span style="background:#07100D"></span><span style="background:#A9D5A5"></span><span style="background:#4E8B6C"></span><span style="background:#92C69B"></span></span>
+          <span class="palette-name">Лес</span>
+        </button>
+        <button class="palette-option" data-value="lavender" type="button">
+          <span class="palette-preview"><span style="background:#100D1A"></span><span style="background:#D8C7FF"></span><span style="background:#8F7BC4"></span><span style="background:#B9A4E6"></span></span>
+          <span class="palette-name">Лаванда</span>
+        </button>
+        <button class="palette-option" data-value="ruby" type="button">
+          <span class="palette-preview"><span style="background:#16070B"></span><span style="background:#FF9AA9"></span><span style="background:#A93E55"></span><span style="background:#E87084"></span></span>
+          <span class="palette-name">Рубин</span>
+        </button>
+        <button class="palette-option" data-value="gold" type="button">
+          <span class="palette-preview"><span style="background:#151006"></span><span style="background:#FFE08A"></span><span style="background:#B58A32"></span><span style="background:#D6B55A"></span></span>
+          <span class="palette-name">Золото</span>
+        </button>
+        <button class="palette-option" data-value="arctic" type="button">
+          <span class="palette-preview"><span style="background:#061116"></span><span style="background:#B8F0FF"></span><span style="background:#4C9DB3"></span><span style="background:#8ED3E5"></span></span>
+          <span class="palette-name">Арктика</span>
+        </button>
+      </div>
+    </div>
+  </section>
 </div>
 
-
-<div class="row-desc">
-Использовать системные цвета Android
-</div>
-
-
-</div>
-
-
-<input
-id="useMonet"
-type="checkbox"
-data-wallify-m3="switch"
->
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section data-wallify-m3="card">
-
-
-<div
-id="paletteCard"
-class="row-content"
->
-
-
-<div class="row-title">
-Цветовая палитра
-</div>
-
-
-
-<div
-id="palette"
-class="palette-grid"
->
-
-
-
-<button
-class="palette-option"
-data-value="violet"
-type="button"
->
-
-<span class="palette-preview">
-
-<span style="background:#090812"></span>
-<span style="background:#E8C5FF"></span>
-<span style="background:#8E79C8"></span>
-<span style="background:#CDB7E9"></span>
-
-</span>
-
-
-<span class="palette-name">
-Фиолет
-</span>
-
-
-</button>
-
-
-
-
-<button
-class="palette-option"
-data-value="ocean"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#061018"></span>
-<span style="background:#8ED8FF"></span>
-<span style="background:#347FA8"></span>
-<span style="background:#86CDEB"></span>
-
-</span>
-
-
-<span class="palette-name">
-Океан
-</span>
-
-
-</button>
-
-
-
-
-
-<button
-class="palette-option"
-data-value="sunset"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#16090B"></span>
-<span style="background:#FFB07A"></span>
-<span style="background:#C85C65"></span>
-<span style="background:#F2A07D"></span>
-
-</span>
-
-
-<span class="palette-name">
-Закат
-</span>
-
-
-</button>
-
-
-
-
-
-<button
-class="palette-option"
-data-value="forest"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#07100D"></span>
-<span style="background:#A9D5A5"></span>
-<span style="background:#4E8B6C"></span>
-<span style="background:#92C69B"></span>
-
-</span>
-
-
-<span class="palette-name">
-Лес
-</span>
-
-
-</button>
-
-
-
-
-
-<button
-class="palette-option"
-data-value="lavender"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#100D1A"></span>
-<span style="background:#D8C7FF"></span>
-<span style="background:#8F7BC4"></span>
-<span style="background:#B9A4E6"></span>
-
-</span>
-
-
-<span class="palette-name">
-Лаванда
-</span>
-
-
-</button>
-
-
-
-
-
-<button
-class="palette-option"
-data-value="ruby"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#16070B"></span>
-<span style="background:#FF9AA9"></span>
-<span style="background:#A93E55"></span>
-<span style="background:#E87084"></span>
-
-</span>
-
-
-<span class="palette-name">
-Рубин
-</span>
-
-
-</button>
-
-
-
-
-
-<button
-class="palette-option"
-data-value="gold"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#151006"></span>
-<span style="background:#FFE08A"></span>
-<span style="background:#B58A32"></span>
-<span style="background:#D6B55A"></span>
-
-</span>
-
-
-<span class="palette-name">
-Золото
-</span>
-
-
-</button>
-
-
-
-
-
-<button
-class="palette-option"
-data-value="arctic"
-type="button"
->
-
-
-<span class="palette-preview">
-
-<span style="background:#061116"></span>
-<span style="background:#B8F0FF"></span>
-<span style="background:#4C9DB3"></span>
-<span style="background:#8ED3E5"></span>
-
-</span>
-
-
-<span class="palette-name">
-Арктика
-</span>
-
-
-</button>
-
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-</div>
-
-
-
-
-<p class="section-title">
-Планета
-</p>
-
-
+<p class="section-title">Планета</p>
 <div data-wallify-m3="card-group">
+  <section data-wallify-m3="card">
+    <div class="row-content">
+      <div class="row-title">Количество лун</div>
+      <div id="moonCount" class="segmented">
+        <button data-value="1">1</button>
+        <button data-value="2">2</button>
+        <button data-value="3">3</button>
+      </div>
+    </div>
+  </section>
 
+  <section data-wallify-m3="card">
+    <div class="row-content">
+      <div class="row-title">Количество колец</div>
+      <div id="ringCount" class="segmented">
+        <button data-value="0">Нет</button>
+        <button data-value="1">1</button>
+        <button data-value="2">2</button>
+        <button data-value="3">3</button>
+      </div>
+    </div>
+  </section>
 
-<section data-wallify-m3="card">
+  <section data-wallify-m3="card">
+    <div class="row-content">
+      <div class="row-title">Скорость вращения</div>
+      <div id="orbitSpeed" class="segmented">
+        <button data-value="0.6">Медленно</button>
+        <button data-value="1">Обычно</button>
+        <button data-value="1.6">Быстро</button>
+      </div>
+    </div>
+  </section>
 
+  <section data-wallify-m3="card">
+    <div class="row-content">
+      <div class="row-title">Направление орбит</div>
+      <div id="orbitDirection" class="segmented">
+        <button data-value="clockwise">По часовой</button>
+        <button data-value="counter">Против</button>
+      </div>
+    </div>
+  </section>
 
-<div class="row-content">
-
-
-<div class="row-title">
-Количество лун
+  <section data-wallify-m3="card">
+    <div class="row">
+      <div class="row-content">
+        <div class="row-title">Тени от лун</div>
+        <div class="row-desc">Мягкие тени от проходящих перед планетой лун</div>
+      </div>
+      <input id="moonShadows" type="checkbox" data-wallify-m3="switch">
+    </div>
+  </section>
 </div>
 
-
-<div
-id="moonCount"
-class="segmented"
->
-
-
-<button data-value="1">
-1
-</button>
-
-
-<button data-value="2">
-2
-</button>
-
-
-<button data-value="3">
-3
-</button>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section data-wallify-m3="card">
-
-
-<div class="row-content">
-
-
-<div class="row-title">
-Количество колец
-</div>
-
-
-<div
-id="ringCount"
-class="segmented"
->
-
-
-<button data-value="0">
-Нет
-</button>
-
-
-<button data-value="1">
-1
-</button>
-
-
-<button data-value="2">
-2
-</button>
-
-
-<button data-value="3">
-3
-</button>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section data-wallify-m3="card">
-
-
-<div class="row-content">
-
-
-<div class="row-title">
-Скорость вращения
-</div>
-
-
-<div
-id="orbitSpeed"
-class="segmented"
->
-
-
-<button data-value="0.6">
-Медленно
-</button>
-
-
-<button data-value="1">
-Обычно
-</button>
-
-
-<button data-value="1.6">
-Быстро
-</button>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-</div>
-
-<p class="section-title">
-Звёзды
-</p>
-
-
+<p class="section-title">Звёзды и фон</p>
 <div data-wallify-m3="card-group">
+  <section data-wallify-m3="card">
+    <div class="row-content">
+      <div class="row-title">Космическая пыль</div>
+      <div id="spaceDust" class="segmented">
+        <button data-value="off">Выкл</button>
+        <button data-value="low">Мало</button>
+        <button data-value="medium">Средне</button>
+        <button data-value="high">Много</button>
+      </div>
+    </div>
+  </section>
 
+  <section data-wallify-m3="card">
+    <div class="row">
+      <div class="row-content">
+        <div class="row-title">Обычные звёзды</div>
+        <div class="row-desc">Мерцающие звёзды на фоне</div>
+      </div>
+      <input id="showStars" type="checkbox" data-wallify-m3="switch">
+    </div>
+  </section>
 
+  <section data-wallify-m3="card">
+    <div class="row">
+      <div class="row-content">
+        <div class="row-title">Падающие звёзды</div>
+        <div class="row-desc">Световые следы на фоне</div>
+      </div>
+      <input id="shootingStars" type="checkbox" data-wallify-m3="switch">
+    </div>
+  </section>
 
-<section data-wallify-m3="card">
+  <section id="shootingOptions" data-wallify-m3="card">
+    <div class="row-content">
+      <div class="row-title">Частота появления</div>
+      <div id="shootingStarFrequency" class="segmented">
+        <button data-value="rare">Редко</button>
+        <button data-value="normal">Обычно</button>
+        <button data-value="frequent">Часто</button>
+      </div>
+    </div>
+  </section>
 
-
-<div class="row">
-
-
-<div class="row-content">
-
-
-<div class="row-title">
-Обычные звёзды
+  <section id="shootingCountCard" data-wallify-m3="card">
+    <div class="row-content slider-content">
+      <div class="row-title">Максимум одновременно <span id="shootingStarCountValue" class="value-pill">1</span></div>
+      <input id="shootingStarCount" type="range" min="1" max="7" step="1" value="1" data-wallify-m3="slider">
+      <div class="row-desc">Максимальное количество падающих звёзд на экране</div>
+    </div>
+  </section>
 </div>
-
-
-<div class="row-desc">
-Мерцающие звёзды на фоне
-</div>
-
-
-</div>
-
-
-<input
-id="showStars"
-type="checkbox"
-data-wallify-m3="switch"
->
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section data-wallify-m3="card">
-
-
-<div class="row">
-
-
-<div class="row-content">
-
-
-<div class="row-title">
-Падающие звёзды
-</div>
-
-
-<div class="row-desc">
-Световые следы на фоне
-</div>
-
-
-</div>
-
-
-<input
-id="shootingStars"
-type="checkbox"
-data-wallify-m3="switch"
->
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section
-id="shootingOptions"
-data-wallify-m3="card"
->
-
-
-<div class="row-content">
-
-
-<div class="row-title">
-Частота появления
-</div>
-
-
-<div
-id="shootingStarFrequency"
-class="segmented"
->
-
-
-<button data-value="rare">
-Редко
-</button>
-
-
-<button data-value="normal">
-Обычно
-</button>
-
-
-<button data-value="frequent">
-Часто
-</button>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section
-id="shootingCountCard"
-data-wallify-m3="card"
->
-
-
-<div
-class="
-row-content
-slider-content
-"
->
-
-
-<div class="row-title">
-
-
-Максимум одновременно
-
-
-<span
-id="shootingStarCountValue"
-class="value-pill"
->
-1
-</span>
-
-
-</div>
-
-
-
-<input
-id="shootingStarCount"
-
-type="range"
-
-min="1"
-
-max="7"
-
-step="1"
-
-value="1"
-
-data-wallify-m3="slider"
-
->
-
-
-
-<div class="row-desc">
-
-Максимальное количество
-падающих звёзд на экране
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-</div>
-
-
-
-
 
 <script src="wallify-m3.js"></script>
-
-
-
 <script>
-
-
 (() => {
-
-
-
-function engine() {
-
-return (
-
-window.WallpaperEngine
-
-||
-null
-
-);
-
-}
-
-
-
-
-
-function getSetting(
-key,
-fallback
-) {
-
-
-if(engine()) {
-
-
-return engine()
-
-.getSetting(
-
-key,
-
-String(
-fallback
-)
-
-);
-
-
-}
-
-
-return (
-
-localStorage.getItem(
-key
-)
-
-||
-
-String(
-fallback
-)
-
-);
-
-
-}
-
-
-
-
-
-function saveSetting(
-key,
-value
-) {
-
-
-if(engine()) {
-
-
-engine()
-
-.saveSetting(
-
-key,
-
-String(
-value
-)
-
-);
-
-
-}
-
-else {
-
-
-localStorage.setItem(
-
-key,
-
-String(
-value
-
-)
-
-);
-
-
-}
-
-
-}
-
-
-
-
-
-function setActive(
-container,
-value
-) {
-
-
-[
-
-...container.children
-
-]
-
-.forEach(
-
-button => {
-
-
-button.classList.toggle(
-
-"active",
-
-button.dataset.value
-
-===
-
-String(
-value
-)
-
-);
-
-
-}
-
-);
-
-
-}
-
-
-
-
-
-function wireSegment(
-id,
-key,
-fallback
-) {
-
-
-const container =
-
-document.getElementById(
-id
-);
-
-
-
-const value =
-
-getSetting(
-key,
-fallback
-);
-
-
-
-setActive(
-
-container,
-
-value
-
-);
-
-
-
-
-[
-
-...container.children
-
-]
-
-.forEach(
-
-button => {
-
-
-button.addEventListener(
-
-"click",
-
-() => {
-
-
-saveSetting(
-
-key,
-
-button.dataset.value
-
-);
-
-
-
-setActive(
-
-container,
-
-button.dataset.value
-
-);
-
-
-}
-
-);
-
-
-}
-
-);
-
-
-}
-
-
-
-
-
-
-function wireSwitch(
-element,
-key,
-defaultValue
-) {
-
-
-element.checked =
-
-
-getSetting(
-
-key,
-
-defaultValue
-
-)
-
-===
-
-"true";
-
-
-
-
-
-element.addEventListener(
-
-"change",
-
-() => {
-
-
-saveSetting(
-
-key,
-
-element.checked
-
-);
-
-
-}
-
-);
-
-
-
-}
-
-
-
-
-
-function init() {
-
-
-
-const useMonet =
-
-document.getElementById(
-"useMonet"
-);
-
-
-
-const paletteCard =
-
-document.getElementById(
-"paletteCard"
-);
-
-
-
-
-useMonet.checked =
-
-
-getSetting(
-
-"useMonet",
-
-false
-
-)
-
-===
-
-"true";
-
-
-
-
-
-function updatePaletteState() {
-
-
-paletteCard.classList.toggle(
-
-"disabled",
-
-useMonet.checked
-
-);
-
-
-}
-
-
-
-
-updatePaletteState();
-
-
-
-
-
-useMonet.addEventListener(
-
-"change",
-
-() => {
-
-
-saveSetting(
-
-"useMonet",
-
-useMonet.checked
-
-);
-
-
-
-updatePaletteState();
-
-
-}
-
-);
-
-
-
-
-
-
-
-wireSegment(
-
-"palette",
-
-"palette",
-
-"violet"
-
-);
-
-
-
-wireSegment(
-
-"moonCount",
-
-"moonCount",
-
-"2"
-
-);
-
-
-
-wireSegment(
-
-"ringCount",
-
-"ringCount",
-
-"1"
-
-);
-
-
-
-wireSegment(
-
-"orbitSpeed",
-
-"orbitSpeed",
-
-"1"
-
-);
-
-
-
-wireSegment(
-
-"shootingStarFrequency",
-
-"shootingStarFrequency",
-
-"rare"
-
-);
-
-
-
-
-
-
-
-
-/*
-  Новый Material 3 Slider
-*/
-
-
-const shootingStarCount =
-
-document.getElementById(
-
-"shootingStarCount"
-
-);
-
-
-
-const shootingStarCountValue =
-
-document.getElementById(
-
-"shootingStarCountValue"
-
-);
-
-
-
-
-
-
-shootingStarCount.value =
-
-
-getSetting(
-
-"shootingStarCount",
-
-"1"
-
-);
-
-
-
-
-shootingStarCountValue.textContent =
-
-shootingStarCount.value;
-
-
-
-
-
-
-shootingStarCount.addEventListener(
-
-"input",
-
-() => {
-
-
-shootingStarCountValue.textContent =
-
-shootingStarCount.value;
-
-
-
-
-saveSetting(
-
-"shootingStarCount",
-
-shootingStarCount.value
-
-);
-
-
-
-}
-
-);
-
-
-
-
-
-
-
-wireSwitch(
-
-document.getElementById(
-"showStars"
-),
-
-"showStars",
-
-true
-
-);
-
-
-
-
-
-
-const shootingStars =
-
-document.getElementById(
-"shootingStars"
-);
-
-
-
-const shootingOptions =
-
-document.getElementById(
-"shootingOptions"
-);
-
-
-
-const shootingCountCard =
-
-document.getElementById(
-"shootingCountCard"
-);
-
-
-
-
-
-wireSwitch(
-
-shootingStars,
-
-"shootingStars",
-
-true
-
-);
-
-
-
-
-
-
-
-function updateShootingState() {
-
-
-const enabled =
-
-shootingStars.checked;
-
-
-
-shootingOptions.classList.toggle(
-
-"disabled",
-
-!enabled
-
-);
-
-
-
-shootingCountCard.classList.toggle(
-
-"disabled",
-
-!enabled
-
-);
-
-
-
-}
-
-
-
-
-
-updateShootingState();
-
-
-
-
-
-shootingStars.addEventListener(
-
-"change",
-
-updateShootingState
-
-);
-
-
-
-}
-
-
-
-
-
-window.addEventListener(
-
-"wallpaperEngineReady",
-
-init,
-
-{
-
-once:true
-
-}
-
-);
-
-
-
-
-
-if(!window.WallpaperEngine) {
-
-
-document.addEventListener(
-
-"DOMContentLoaded",
-
-init,
-
-{
-
-once:true
-
-}
-
-);
-
-
-}
-
-
-
+  function getEngine() {
+    return window.WallpaperEngine || window.Wallify || null;
+  }
+
+  function getSetting(key, fallback) {
+    const engine = getEngine();
+    if (engine && typeof engine.getSetting === "function") {
+      return engine.getSetting(key, String(fallback));
+    }
+    return String(localStorage.getItem(key) ?? fallback);
+  }
+
+  function saveSetting(key, value) {
+    const engine = getEngine();
+    if (engine && typeof engine.saveSetting === "function") {
+      engine.saveSetting(key, String(value));
+    } else {
+      localStorage.setItem(key, String(value));
+    }
+  }
+
+  function setActive(container, value) {
+    if (!container) return;
+    [...container.children].forEach(button => {
+      button.classList.toggle("active", button.dataset.value === String(value));
+    });
+  }
+
+  function wireSegment(id, key, fallback) {
+    const container = document.getElementById(id);
+    if (!container) return;
+    const value = getSetting(key, fallback);
+    setActive(container, value);
+
+    [...container.children].forEach(button => {
+      button.addEventListener("click", () => {
+        saveSetting(key, button.dataset.value);
+        setActive(container, button.dataset.value);
+      });
+    });
+  }
+
+  function wireSwitch(element, key, defaultValue) {
+    if (!element) return;
+    element.checked = getSetting(key, defaultValue) === "true";
+    element.addEventListener("change", () => {
+      saveSetting(key, element.checked);
+    });
+  }
+
+  function init() {
+    const useMonet = document.getElementById("useMonet");
+    const paletteCard = document.getElementById("paletteCard");
+
+    if (useMonet) {
+      useMonet.checked = getSetting("useMonet", "false") === "true";
+      function updatePaletteState() {
+        if (paletteCard) paletteCard.classList.toggle("disabled", useMonet.checked);
+      }
+      updatePaletteState();
+      useMonet.addEventListener("change", () => {
+        saveSetting("useMonet", useMonet.checked);
+        updatePaletteState();
+      });
+    }
+
+    wireSegment("palette", "palette", "violet");
+    wireSegment("moonCount", "moonCount", "2");
+    wireSegment("ringCount", "ringCount", "1");
+    wireSegment("orbitSpeed", "orbitSpeed", "1");
+    wireSegment("orbitDirection", "orbitDirection", "clockwise");
+    wireSegment("spaceDust", "spaceDust", "medium");
+    wireSegment("shootingStarFrequency", "shootingStarFrequency", "rare");
+
+    const shootingStarCount = document.getElementById("shootingStarCount");
+    const shootingStarCountValue = document.getElementById("shootingStarCountValue");
+
+    if (shootingStarCount && shootingStarCountValue) {
+      shootingStarCount.value = getSetting("shootingStarCount", "1");
+      shootingStarCountValue.textContent = shootingStarCount.value;
+
+      shootingStarCount.addEventListener("input", () => {
+        shootingStarCountValue.textContent = shootingStarCount.value;
+        saveSetting("shootingStarCount", shootingStarCount.value);
+      });
+    }
+
+    wireSwitch(document.getElementById("showStars"), "showStars", "true");
+    wireSwitch(document.getElementById("moonShadows"), "moonShadows", "true");
+
+    const shootingStars = document.getElementById("shootingStars");
+    const shootingOptions = document.getElementById("shootingOptions");
+    const shootingCountCard = document.getElementById("shootingCountCard");
+
+    if (shootingStars) {
+      wireSwitch(shootingStars, "shootingStars", "true");
+
+      function updateShootingState() {
+        const enabled = shootingStars.checked;
+        if (shootingOptions) shootingOptions.classList.toggle("disabled", !enabled);
+        if (shootingCountCard) shootingCountCard.classList.toggle("disabled", !enabled);
+      }
+
+      updateShootingState();
+      shootingStars.addEventListener("change", updateShootingState);
+    }
+  }
+
+  window.addEventListener("wallpaperEngineReady", init, { once: true });
+
+  if (!getEngine()) {
+    document.addEventListener("DOMContentLoaded", init, { once: true });
+  }
 })();
-
-
-
 </script>
-
-
-
 </body>
-
 </html>

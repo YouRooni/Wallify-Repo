@@ -1,2754 +1,448 @@
 <!DOCTYPE html>
-
 <html lang="ru">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mini Orbit</title>
-
 <style>
-
-html,
-body {
-
+html, body {
   width: 100%;
   height: 100%;
-
   margin: 0;
-
   overflow: hidden;
-
   background: #090812;
-
+  overscroll-behavior: none;
 }
-
 canvas {
-
   display: block;
-
   width: 100%;
   height: 100%;
-
 }
-
 </style>
-
 </head>
-
 <body>
 
 <canvas id="canvas"></canvas>
 
 <script>
-
 (() => {
-
-
-  const canvas =
-
-    document.getElementById(
-      "canvas"
-    );
-
-
-  const ctx =
-
-    canvas.getContext(
-      "2d",
-      {
-        alpha: false
-      }
-    );
-
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d", { alpha: false });
 
   let width = 0;
-
   let height = 0;
-
   let dpr = 1;
 
-
-  let startTime =
-
-    performance.now();
-
-
-  /*
-    Состояние зарядки.
-  */
-
-  let isCharging =
-
-    false;
-
-
-  /*
-    Яркость обычных звёзд.
-
-    Обычное состояние:
-    1.0
-
-    Максимум при зарядке:
-    1.95
-  */
-
-  let starBrightness =
-
-    1;
-
-
-  /*
-    Настройки.
-  */
+  let startTime = performance.now();
+  let isCharging = false;
+  let starBrightness = 1;
 
   const settings = {
-
-    palette:
-      "violet",
-
-    useMonet:
-      false,
-
-    moonCount:
-      2,
-
-    ringCount:
-      1,
-
-    orbitSpeed:
-      1,
-
-    showStars:
-      true,
-
-    shootingStars:
-      true,
-
-    shootingStarFrequency:
-      "rare",
-
-    shootingStarCount:
-      1
-
+    palette: "violet",
+    useMonet: false,
+    moonCount: 2,
+    ringCount: 1,
+    orbitSpeed: 1,
+    orbitDirection: "clockwise",
+    showStars: true,
+    shootingStars: true,
+    shootingStarFrequency: "rare",
+    shootingStarCount: 1,
+    spaceDust: "medium"
   };
-
-
-  /*
-    Цветовые палитры.
-  */
 
   const palettes = {
-
-
-    violet: {
-
-      background:
-        "#090812",
-
-      sun:
-        "#E8C5FF",
-
-      planet:
-        "#8E79C8",
-
-      moon:
-        "#D7C7F2",
-
-      ring:
-        "#CDB7E9",
-
-      stars:
-        "#FFFFFF"
-
-    },
-
-
-    ocean: {
-
-      background:
-        "#061018",
-
-      sun:
-        "#8ED8FF",
-
-      planet:
-        "#347FA8",
-
-      moon:
-        "#B7E8FF",
-
-      ring:
-        "#86CDEB",
-
-      stars:
-        "#E8F8FF"
-
-    },
-
-
-    sunset: {
-
-      background:
-        "#16090B",
-
-      sun:
-        "#FFB07A",
-
-      planet:
-        "#C85C65",
-
-      moon:
-        "#FFD2B4",
-
-      ring:
-        "#F2A07D",
-
-      stars:
-        "#FFF3E8"
-
-    },
-
-
-    forest: {
-
-      background:
-        "#07100D",
-
-      sun:
-        "#A9D5A5",
-
-      planet:
-        "#4E8B6C",
-
-      moon:
-        "#C7E7CB",
-
-      ring:
-        "#92C69B",
-
-      stars:
-        "#EEFFF1"
-
-    },
-
-
-    lavender: {
-
-      background:
-        "#100D1A",
-
-      sun:
-        "#D8C7FF",
-
-      planet:
-        "#8F7BC4",
-
-      moon:
-        "#E7DEFF",
-
-      ring:
-        "#B9A4E6",
-
-      stars:
-        "#FFFFFF"
-
-    },
-
-
-    ruby: {
-
-      background:
-        "#16070B",
-
-      sun:
-        "#FF9AA9",
-
-      planet:
-        "#A93E55",
-
-      moon:
-        "#FFD0D7",
-
-      ring:
-        "#E87084",
-
-      stars:
-        "#FFF4F5"
-
-    },
-
-
-    gold: {
-
-      background:
-        "#151006",
-
-      sun:
-        "#FFE08A",
-
-      planet:
-        "#B58A32",
-
-      moon:
-        "#FFF0B8",
-
-      ring:
-        "#D6B55A",
-
-      stars:
-        "#FFF9E8"
-
-    },
-
-
-    arctic: {
-
-      background:
-        "#061116",
-
-      sun:
-        "#B8F0FF",
-
-      planet:
-        "#4C9DB3",
-
-      moon:
-        "#D8F7FF",
-
-      ring:
-        "#8ED3E5",
-
-      stars:
-        "#F1FDFF"
-
-    }
-
+    violet: { background: "#090812", sun: "#E8C5FF", planet: "#8E79C8", moon: "#D7C7F2", ring: "#CDB7E9", stars: "#FFFFFF" },
+    ocean: { background: "#061018", sun: "#8ED8FF", planet: "#347FA8", moon: "#B7E8FF", ring: "#86CDEB", stars: "#E8F8FF" },
+    sunset: { background: "#16090B", sun: "#FFB07A", planet: "#C85C65", moon: "#FFD2B4", ring: "#F2A07D", stars: "#FFF3E8" },
+    forest: { background: "#07100D", sun: "#A9D5A5", planet: "#4E8B6C", moon: "#C7E7CB", ring: "#92C69B", stars: "#EEFFF1" },
+    lavender: { background: "#100D1A", sun: "#D8C7FF", planet: "#8F7BC4", moon: "#E7DEFF", ring: "#B9A4E6", stars: "#FFFFFF" },
+    ruby: { background: "#16070B", sun: "#FF9AA9", planet: "#A93E55", moon: "#FFD0D7", ring: "#E87084", stars: "#FFF4F5" },
+    gold: { background: "#151006", sun: "#FFE08A", planet: "#B58A32", moon: "#FFF0B8", ring: "#D6B55A", stars: "#FFF9E8" },
+    arctic: { background: "#061116", sun: "#B8F0FF", planet: "#4C9DB3", moon: "#D8F7FF", ring: "#8ED3E5", stars: "#F1FDFF" }
   };
 
-
-  let colors =
-
-    palettes.violet;
-
-
-  /*
-    Обычные звёзды.
-  */
+  let colors = palettes.violet;
 
   const stars = [];
-
-
-  for (
-    let i = 0;
-    i < 105;
-    i++
-  ) {
-
+  for (let i = 0; i < 105; i++) {
     stars.push({
-
-      x:
-        Math.random(),
-
-      y:
-        Math.random(),
-
-      size:
-
-        0.8
-
-        +
-
-        Math.random()
-        *
-        1.5,
-
-      alpha:
-
-        0.28
-
-        +
-
-        Math.random()
-        *
-        0.55,
-
-      phase:
-
-        Math.random()
-
-        *
-
-        Math.PI
-
-        *
-
-        2,
-
-      speed:
-
-        0.25
-
-        +
-
-        Math.random()
-        *
-        0.45
-
+      x: Math.random(),
+      y: Math.random(),
+      size: 0.8 + Math.random() * 1.5,
+      alpha: 0.28 + Math.random() * 0.55,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.25 + Math.random() * 0.45
     });
-
   }
 
-
-  /*
-    Активные падающие звёзды.
-  */
+  const dustParticles = [];
+  for (let i = 0; i < 35; i++) {
+    dustParticles.push({
+      x: Math.random(),
+      y: Math.random(),
+      radius: 40 + Math.random() * 90,
+      vx: (Math.random() - 0.5) * 0.015,
+      vy: (Math.random() - 0.5) * 0.015,
+      alpha: 0.03 + Math.random() * 0.07
+    });
+  }
 
   const shootingStars = [];
-
-
-  /*
-    Вероятность появления.
-
-    Значения рассчитаны
-    на один кадр.
-  */
-
   const shootingStarRates = {
-
-    rare:
-      0.12,
-
-    normal:
-      0.24,
-
-    frequent:
-      0.42
-
+    rare: 0.12,
+    normal: 0.24,
+    frequent: 0.42
   };
 
-
-  function getSetting(
-    key,
-    fallback
-  ) {
-
-    if (
-      window.WallpaperEngine
-    ) {
-
-      return (
-
-        window.WallpaperEngine
-
-          .getSetting(
-
-            key,
-
-            String(
-              fallback
-            )
-
-          )
-
-      );
-
-    }
-
-
-    return String(
-      fallback
-    );
-
+  function getEngine() {
+    return window.WallpaperEngine || window.Wallify || null;
   }
 
+  function getSetting(key, fallback) {
+    const engine = getEngine();
+    if (engine && typeof engine.getSetting === "function") {
+      const val = engine.getSetting(key, String(fallback));
+      if (val !== undefined && val !== null) return String(val);
+    }
+    return String(localStorage.getItem(key) ?? fallback);
+  }
 
   function loadSettings() {
+    settings.palette = getSetting("palette", "violet");
+    settings.useMonet = getSetting("useMonet", "false") === "true";
 
+    const savedMoonCount = parseInt(getSetting("moonCount", 2), 10);
+    settings.moonCount = Number.isFinite(savedMoonCount) ? Math.max(1, Math.min(3, savedMoonCount)) : 2;
 
-    settings.palette =
+    const savedRingCount = parseInt(getSetting("ringCount", 1), 10);
+    settings.ringCount = Number.isFinite(savedRingCount) ? Math.max(0, Math.min(3, savedRingCount)) : 1;
 
-      getSetting(
+    const savedSpeed = parseFloat(getSetting("orbitSpeed", 1));
+    settings.orbitSpeed = Number.isFinite(savedSpeed) ? Math.max(0.2, Math.min(3, savedSpeed)) : 1;
 
-        "palette",
+    settings.orbitDirection = getSetting("orbitDirection", "clockwise");
+    settings.showStars = getSetting("showStars", "true") === "true";
+    settings.shootingStars = getSetting("shootingStars", "true") === "true";
 
-        "violet"
+    const frequency = getSetting("shootingStarFrequency", "rare");
+    settings.shootingStarFrequency = shootingStarRates[frequency] ? frequency : "rare";
 
-      );
+    const savedShootingCount = parseInt(getSetting("shootingStarCount", 1), 10);
+    settings.shootingStarCount = Number.isFinite(savedShootingCount) ? Math.max(1, Math.min(7, savedShootingCount)) : 1;
 
-
-    settings.useMonet =
-
-      getSetting(
-
-        "useMonet",
-
-        false
-
-      )
-
-      ===
-
-      "true";
-
-
-    const savedMoonCount =
-
-      parseInt(
-
-        getSetting(
-
-          "moonCount",
-
-          2
-
-        ),
-
-        10
-
-      );
-
-
-    settings.moonCount =
-
-      Number.isFinite(
-        savedMoonCount
-      )
-
-      ?
-
-      Math.max(
-
-        1,
-
-        Math.min(
-
-          3,
-
-          savedMoonCount
-
-        )
-
-      )
-
-      :
-
-      2;
-
-
-    const savedRingCount =
-
-      parseInt(
-
-        getSetting(
-
-          "ringCount",
-
-          1
-
-        ),
-
-        10
-
-      );
-
-
-    settings.ringCount =
-
-      Number.isFinite(
-        savedRingCount
-      )
-
-      ?
-
-      Math.max(
-
-        0,
-
-        Math.min(
-
-          3,
-
-          savedRingCount
-
-        )
-
-      )
-
-      :
-
-      1;
-
-
-    const savedSpeed =
-
-      parseFloat(
-
-        getSetting(
-
-          "orbitSpeed",
-
-          1
-
-        )
-
-      );
-
-
-    settings.orbitSpeed =
-
-      Number.isFinite(
-        savedSpeed
-      )
-
-      ?
-
-      Math.max(
-
-        0.2,
-
-        Math.min(
-
-          3,
-
-          savedSpeed
-
-        )
-
-      )
-
-      :
-
-      1;
-
-
-    settings.showStars =
-
-      getSetting(
-
-        "showStars",
-
-        true
-
-      )
-
-      ===
-
-      "true";
-
-
-    settings.shootingStars =
-
-      getSetting(
-
-        "shootingStars",
-
-        true
-
-      )
-
-      ===
-
-      "true";
-
-
-    const frequency =
-
-      getSetting(
-
-        "shootingStarFrequency",
-
-        "rare"
-
-      );
-
-
-    settings.shootingStarFrequency =
-
-      shootingStarRates[
-        frequency
-      ]
-
-      ?
-
-      frequency
-
-      :
-
-      "rare";
-
-
-    const savedShootingCount =
-
-      parseInt(
-
-        getSetting(
-
-          "shootingStarCount",
-
-          5
-
-        ),
-
-        10
-
-      );
-
-
-    settings.shootingStarCount =
-
-      Number.isFinite(
-        savedShootingCount
-      )
-
-      ?
-
-      Math.max(
-
-        1,
-
-        Math.min(
-
-          7,
-
-          savedShootingCount
-
-        )
-
-      )
-
-      :
-
-      1;
-
-
-    /*
-      Если пользователь уменьшил
-      максимальное количество,
-      лишние звёзды удаляются.
-    */
-
-    while (
-
-      shootingStars.length
-
-      >
-
-      settings.shootingStarCount
-
-    ) {
-
+    while (shootingStars.length > settings.shootingStarCount) {
       shootingStars.pop();
-
     }
 
+    settings.spaceDust = getSetting("spaceDust", "medium");
   }
 
-
-  function hexToRgba(
-    hex,
-    alpha
-  ) {
-
-    if (
-      !hex
-    ) {
-
-      return (
-
-        "rgba(255,255,255,"
-
-        +
-
-        alpha
-
-        +
-
-        ")"
-
-      );
-
-    }
-
-
-    const value =
-
-      hex.replace(
-
-        "#",
-
-        ""
-
-      );
-
-
-    const r =
-
-      parseInt(
-
-        value.slice(
-          0,
-          2
-        ),
-
-        16
-
-      );
-
-
-    const g =
-
-      parseInt(
-
-        value.slice(
-          2,
-          4
-        ),
-
-        16
-
-      );
-
-
-    const b =
-
-      parseInt(
-
-        value.slice(
-          4,
-          6
-        ),
-
-        16
-
-      );
-
-
-    return (
-
-      "rgba("
-
-      +
-
-      r
-
-      +
-
-      ","
-
-      +
-
-      g
-
-      +
-
-      ","
-
-      +
-
-      b
-
-      +
-
-      ","
-
-      +
-
-      alpha
-
-      +
-
-      ")"
-
-    );
-
+  function hexToRgba(hex, alpha) {
+    if (!hex) return `rgba(255,255,255,${alpha})`;
+    const value = hex.replace("#", "");
+    const r = parseInt(value.slice(0, 2), 16);
+    const g = parseInt(value.slice(2, 4), 16);
+    const b = parseInt(value.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
   }
 
-
-  function updatePalette(
-    detail
-  ) {
-
-    const monet =
-
-      detail
-
-      &&
-
-      detail.accentColors;
-
-
-    if (
-
-      settings.useMonet
-
-      &&
-
-      monet
-
-    ) {
-
+  function updatePalette(detail) {
+    const monet = detail && detail.accentColors;
+    if (settings.useMonet && monet) {
       colors = {
-
-        background:
-
-          monet.background
-
-          ||
-
-          "#090812",
-
-
-        sun:
-
-          monet.primary
-
-          ||
-
-          "#E8C5FF",
-
-
-        planet:
-
-          monet.secondary
-
-          ||
-
-          "#8E79C8",
-
-
-        moon:
-
-          monet.tertiary
-
-          ||
-
-          "#D7C7F2",
-
-
-        ring:
-
-          monet.primary
-
-          ||
-
-          "#CDB7E9",
-
-
-        stars:
-
-          monet.onBackground
-
-          ||
-
-          "#FFFFFF"
-
+        background: monet.background || "#090812",
+        sun: monet.primary || "#E8C5FF",
+        planet: monet.secondary || "#8E79C8",
+        moon: monet.tertiary || "#D7C7F2",
+        ring: monet.primary || "#CDB7E9",
+        stars: monet.onBackground || "#FFFFFF"
       };
-
-
       return;
-
     }
-
-
-    colors =
-
-      palettes[
-        settings.palette
-      ]
-
-      ||
-
-      palettes.violet;
-
+    colors = palettes[settings.palette] || palettes.violet;
   }
-
 
   function resize() {
-
-
-    dpr =
-
-      Math.min(
-
-        window.devicePixelRatio
-
-        ||
-
-        1,
-
-        2
-
-      );
-
-
-    width =
-
-      window.innerWidth;
-
-
-    height =
-
-      window.innerHeight;
-
-
-    canvas.width =
-
-      Math.round(
-
-        width
-
-        *
-
-        dpr
-
-      );
-
-
-    canvas.height =
-
-      Math.round(
-
-        height
-
-        *
-
-        dpr
-
-      );
-
-
-    ctx.setTransform(
-
-      dpr,
-      0,
-      0,
-      dpr,
-      0,
-      0
-
-    );
-
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-
-  function circle(
-
-    x,
-
-    y,
-
-    radius,
-
-    color
-
-  ) {
-
+  function circle(x, y, radius, color) {
     ctx.beginPath();
-
-
-    ctx.arc(
-
-      x,
-
-      y,
-
-      radius,
-
-      0,
-
-      Math.PI
-
-      *
-
-      2
-
-    );
-
-
-    ctx.fillStyle =
-
-      color;
-
-
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = color;
     ctx.fill();
-
   }
 
-
-  function drawRingHalf(
-
-    x,
-
-    y,
-
-    radiusX,
-
-    radiusY,
-
-    startAngle,
-
-    endAngle,
-
-    color,
-
-    lineWidth
-
-  ) {
-
+  function drawRingHalf(x, y, radiusX, radiusY, startAngle, endAngle, color, lineWidth) {
     ctx.beginPath();
-
-
-    ctx.ellipse(
-
-      x,
-
-      y,
-
-      radiusX,
-
-      radiusY,
-
-      -0.24,
-
-      startAngle,
-
-      endAngle
-
-    );
-
-
-    ctx.strokeStyle =
-
-      color;
-
-
-    ctx.lineWidth =
-
-      lineWidth;
-
-
+    ctx.ellipse(x, y, radiusX, radiusY, -0.24, startAngle, endAngle);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
     ctx.stroke();
-
   }
-
-
-  /*
-    Создание падающей звезды.
-  */
 
   function createShootingStar() {
-
-
-    const fromLeft =
-
-      Math.random()
-
-      >
-
-      0.5;
-
-
-    const startX =
-
-      fromLeft
-
-      ?
-
-      -width
-      *
-      0.08
-
-      :
-
-      width
-      *
-      1.08;
-
-
-    const startY =
-
-      height
-
-      *
-
-      (
-        0.05
-
-        +
-
-        Math.random()
-        *
-        0.48
-      );
-
-
-    const direction =
-
-      fromLeft
-
-      ?
-
-      1
-
-      :
-
-      -1;
-
+    const fromLeft = Math.random() > 0.5;
+    const startX = fromLeft ? -width * 0.08 : width * 1.08;
+    const startY = height * (0.05 + Math.random() * 0.48);
+    const direction = fromLeft ? 1 : -1;
 
     shootingStars.push({
-
-      x:
-        startX,
-
-      y:
-        startY,
-
-      direction:
-        direction,
-
-      length:
-      
-        Math.min(
-          width,
-          height
-        )
-      
-        *
-      
-        (
-      
-          0.20
-      
-          +
-      
-          Math.random()
-          *
-          0.16
-      
-        ),
-      
-      speed:
-      
-        Math.min(
-          width,
-          height
-        )
-      
-        *
-      
-        (
-      
-          0.26
-      
-          +
-      
-          Math.random()
-          *
-          0.12
-      
-        ),
-      
-      angle:
-      
-        direction
-      
-        *
-      
-        (
-      
-          0.20
-      
-          +
-      
-          Math.random()
-          *
-          0.16
-      
-        ),
-      
-      life:
-        0,
-      
-      duration:
-      
-        2.2
-      
-        +
-      
-        Math.random()
-        *
-        1.8
-
+      x: startX,
+      y: startY,
+      direction: direction,
+      length: Math.min(width, height) * (0.20 + Math.random() * 0.16),
+      speed: Math.min(width, height) * (0.26 + Math.random() * 0.12),
+      angle: direction * (0.20 + Math.random() * 0.16),
+      life: 0,
+      duration: 2.2 + Math.random() * 1.8
     });
-
   }
 
-
-  function updateShootingStars(
-    delta
-  ) {
-
-
-    if (
-
-      settings.shootingStars
-
-      &&
-
-      shootingStars.length
-
-      <
-
-      settings.shootingStarCount
-
-    ) {
-
-      const rate =
-
-        shootingStarRates[
-
-          settings
-            .shootingStarFrequency
-
-        ]
-
-        ||
-
-        shootingStarRates.rare;
-
-
-      if (
-
-        Math.random()
-
-        <
-
-        rate
-        *
-        delta
-
-      ) {
-
+  function updateShootingStars(delta) {
+    if (settings.shootingStars && shootingStars.length < settings.shootingStarCount) {
+      const rate = shootingStarRates[settings.shootingStarFrequency] || shootingStarRates.rare;
+      if (Math.random() < rate * delta) {
         createShootingStar();
-
       }
-
     }
 
-
-    for (
-
-      let i =
-
-        shootingStars.length
-
-        -
-
-        1;
-
-      i >= 0;
-
-      i--
-
-    ) {
-
-      const star =
-
-        shootingStars[i];
-
-
-      star.life +=
-
-        delta;
-
-
-      star.x +=
-
-        Math.cos(
-          star.angle
-        )
-
-        *
-
-        star.speed
-
-        *
-
-        delta;
-
-
-      star.y +=
-
-        Math.sin(
-          star.angle
-        )
-
-        *
-
-        star.speed
-
-        *
-
-        delta;
-
-
-      if (
-
-        star.life
-
-        >=
-
-        star.duration
-
-      ) {
-
-        shootingStars.splice(
-
-          i,
-
-          1
-
-        );
-
+    for (let i = shootingStars.length - 1; i >= 0; i--) {
+      const star = shootingStars[i];
+      star.life += delta;
+      star.x += Math.cos(star.angle) * star.speed * delta;
+      star.y += Math.sin(star.angle) * star.speed * delta;
+      if (star.life >= star.duration) {
+        shootingStars.splice(i, 1);
       }
-
     }
-
   }
-
 
   function drawShootingStars() {
+    for (const star of shootingStars) {
+      const progress = star.life / star.duration;
+      const fade = Math.sin(progress * Math.PI);
+      const tailX = star.x - Math.cos(star.angle) * star.length;
+      const tailY = star.y - Math.sin(star.angle) * star.length;
 
-
-    for (
-
-      const star
-
-      of
-
-      shootingStars
-
-    ) {
-
-
-      const progress =
-
-        star.life
-
-        /
-
-        star.duration;
-
-
-      const fade =
-
-        Math.sin(
-
-          progress
-
-          *
-
-          Math.PI
-
-        );
-
-
-      const tailX =
-
-        star.x
-
-        -
-
-        Math.cos(
-          star.angle
-        )
-
-        *
-
-        star.length;
-
-
-      const tailY =
-
-        star.y
-
-        -
-
-        Math.sin(
-          star.angle
-        )
-
-        *
-
-        star.length;
-
-
-      const gradient =
-
-        ctx.createLinearGradient(
-
-          tailX,
-
-          tailY,
-
-          star.x,
-
-          star.y
-
-        );
-
-
-      gradient.addColorStop(
-
-        0,
-
-        hexToRgba(
-
-          colors.stars,
-
-          0
-
-        )
-
-      );
-
-
-      gradient.addColorStop(
-
-        0.62,
-        
-        hexToRgba(
-        
-          colors.stars,
-        
-          0.42
-        
-          *
-        
-          fade
-        
-        )
-
-      );
-
-
-      gradient.addColorStop(
-
-        1,
-        
-        hexToRgba(
-        
-          colors.stars,
-        
-          1
-        
-          *
-        
-          fade
-        
-       )
-
-      );
-
+      const gradient = ctx.createLinearGradient(tailX, tailY, star.x, star.y);
+      gradient.addColorStop(0, hexToRgba(colors.stars, 0));
+      gradient.addColorStop(0.62, hexToRgba(colors.stars, 0.42 * fade));
+      gradient.addColorStop(1, hexToRgba(colors.stars, 1 * fade));
 
       ctx.beginPath();
-
-
-      ctx.moveTo(
-
-        tailX,
-
-        tailY
-
-      );
-
-
-      ctx.lineTo(
-
-        star.x,
-
-        star.y
-
-      );
-
-
-      ctx.strokeStyle =
-
-        gradient;
-
-
-      ctx.lineWidth =
-
-        2;
-
-
-      ctx.lineCap =
-
-        "round";
-
-
+      ctx.moveTo(tailX, tailY);
+      ctx.lineTo(star.x, star.y);
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
       ctx.stroke();
 
-
-      ctx.globalAlpha =
-
-        fade;
-
-
-      circle(
-
-        star.x,
-
-        star.y,
-
-        2.2,
-
-        colors.stars
-
-      );
-
-
-      ctx.globalAlpha =
-
-        1;
-
+      ctx.globalAlpha = fade;
+      circle(star.x, star.y, 2.2, colors.stars);
+      ctx.globalAlpha = 1;
     }
-
   }
 
-
-  let previousTime =
-
-    performance.now();
-
-
-  function draw(
-    now
-  ) {
-
-
-    const time =
-
-      (
-
-        now
-
-        -
-
-        startTime
-
-      )
-
-      /
-
-      1000;
-
-
-    const delta =
-
-      Math.min(
-
-        (
-
-          now
-
-          -
-
-          previousTime
-
-        )
-
-        /
-
-        1000,
-
-        0.05
-
-      );
-
-
-    previousTime =
-
-      now;
-
-
-    /*
-      Яркость до 1.95
-      при зарядке.
-    */
-
-    const targetBrightness =
-
-      isCharging
-
-      ?
-
-      1.95
-
-      :
-
-      1;
-
-
-    starBrightness +=
-
-      (
-
-        targetBrightness
-
-        -
-
-        starBrightness
-
-      )
-
-      *
-
-      0.025;
-
-
-    /*
-      Фон.
-    */
-
-    ctx.globalAlpha =
-
-      1;
-
-
-    ctx.fillStyle =
-
-      colors.background;
-
-
-    ctx.fillRect(
-
-      0,
-
-      0,
-
-      width,
-
-      height
-
-    );
-
-
-    /*
-      Обычные звёзды.
-    */
-
-    if (
-
-      settings.showStars
-
-    ) {
-
-      for (
-
-        const star
-
-        of
-
-        stars
-
-      ) {
-
-
-        const twinkle =
-
-          0.82
-
-          +
-
-          Math.sin(
-
-            time
-
-            *
-
-            star.speed
-
-            +
-
-            star.phase
-
-          )
-
-          *
-
-          0.18;
-
-
-        ctx.globalAlpha =
-
-          Math.min(
-
-            1,
-
-            star.alpha
-
-            *
-
-            twinkle
-
-            *
-
-            starBrightness
-
-          );
-
-
-        circle(
-
-          star.x
-
-          *
-
-          width,
-
-
-          star.y
-
-          *
-
-          height,
-
-
-          star.size,
-
-
-          colors.stars
-
-        );
-
+  let previousTime = performance.now();
+
+  function draw(now) {
+    const time = (now - startTime) / 1000;
+    const delta = Math.min((now - previousTime) / 1000, 0.05);
+    previousTime = now;
+
+    const targetBrightness = isCharging ? 1.95 : 1;
+    starBrightness += (targetBrightness - starBrightness) * 0.025;
+
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = colors.background;
+    ctx.fillRect(0, 0, width, height);
+
+    if (settings.spaceDust !== "off") {
+      let dustMultiplier = settings.spaceDust === "high" ? 1.8 : (settings.spaceDust === "medium" ? 1 : 0.5);
+      for (const p of dustParticles) {
+        p.x += p.vx * delta;
+        p.y += p.vy * delta;
+        if (p.x < -0.2) p.x = 1.2;
+        if (p.x > 1.2) p.x = -0.2;
+        if (p.y < -0.2) p.y = 1.2;
+        if (p.y > 1.2) p.y = -0.2;
+
+        const px = p.x * width;
+        const py = p.y * height;
+        const dustGrad = ctx.createRadialGradient(px, py, 0, px, py, p.radius);
+        dustGrad.addColorStop(0, hexToRgba(colors.sun, p.alpha * dustMultiplier));
+        dustGrad.addColorStop(1, hexToRgba(colors.sun, 0));
+
+        ctx.fillStyle = dustGrad;
+        ctx.beginPath();
+        ctx.arc(px, py, p.radius, 0, Math.PI * 2);
+        ctx.fill();
       }
-
     }
 
+    if (settings.showStars) {
+      for (const star of stars) {
+        const twinkle = 0.82 + Math.sin(time * star.speed + star.phase) * 0.18;
+        ctx.globalAlpha = Math.min(1, star.alpha * twinkle * starBrightness);
+        circle(star.x * width, star.y * height, star.size, colors.stars);
+      }
+    }
 
-    ctx.globalAlpha =
-
-      1;
-
-
-    updateShootingStars(
-      delta
-    );
-
-
+    ctx.globalAlpha = 1;
+    updateShootingStars(delta);
     drawShootingStars();
 
-
-    /*
-      Солнце.
-    */
-
-    const sunX =
-
-      width
-
-      *
-
-      -0.08;
-
-
-    const sunY =
-
-      height
-
-      *
-
-      0.23;
-
-
-    const sunRadius =
-
-      Math.min(
-
-        width,
-
-        height
-
-      )
-
-      *
-
-      0.19;
-
-
-    const sunGlow =
-
-      ctx.createRadialGradient(
-
-        sunX,
-
-        sunY,
-
-        sunRadius
-        *
-        0.15,
-
-        sunX,
-
-        sunY,
-
-        sunRadius
-        *
-        2.2
-
-      );
-
-
-    sunGlow.addColorStop(
-
-      0,
-
-      hexToRgba(
-
-        colors.sun,
-
-        0.34
-
-      )
-
-    );
-
-
-    sunGlow.addColorStop(
-
-      1,
-
-      hexToRgba(
-
-        colors.sun,
-
-        0
-
-      )
-
-    );
-
-
-    ctx.fillStyle =
-
-      sunGlow;
-
-
-    ctx.fillRect(
-
-      0,
-
-      0,
-
-      width,
-
-      height
-
-    );
-
-
-    circle(
-
-      sunX,
-
-      sunY,
-
-      sunRadius,
-
-      colors.sun
-
-    );
-
-
-    /*
-      Планета.
-    */
-
-    const planetX =
-
-      width
-
-      *
-
-      0.58;
-
-
-    const planetY =
-
-      height
-
-      *
-
-      0.55;
-
-
-    const planetRadius =
-
-      Math.min(
-
-        width,
-
-        height
-
-      )
-
-      *
-
-      0.15;
-
-
-    /*
-      Задние части колец.
-    */
-
-    for (
-
-      let i = 0;
-
-      i < settings.ringCount;
-
-      i++
-
-    ) {
-
-
-      const ringX =
-
-        planetRadius
-
-        *
-
-        (
-
-          1.38
-
-          +
-
-          i
-
-          *
-
-          0.18
-
-        );
-
-
-      const ringY =
-
-        planetRadius
-
-        *
-
-        (
-
-          0.52
-
-          +
-
-          i
-
-          *
-
-          0.07
-
-        );
-
-
-      drawRingHalf(
-
-        planetX,
-
-        planetY,
-
-        ringX,
-
-        ringY,
-
-        Math.PI,
-
-        Math.PI
-        *
-        2,
-
-        hexToRgba(
-
-          colors.ring,
-
-          0.42
-
-        ),
-
-        2.2
-
-      );
-
+    const sunX = width * -0.08;
+    const sunY = height * 0.23;
+    const sunRadius = Math.min(width, height) * 0.19;
+
+    const sunGlow = ctx.createRadialGradient(sunX, sunY, sunRadius * 0.15, sunX, sunY, sunRadius * 2.2);
+    sunGlow.addColorStop(0, hexToRgba(colors.sun, 0.34));
+    sunGlow.addColorStop(1, hexToRgba(colors.sun, 0));
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(0, 0, width, height);
+    circle(sunX, sunY, sunRadius, colors.sun);
+
+    const planetX = width * 0.58;
+    const planetY = height * 0.55;
+    const planetRadius = Math.min(width, height) * 0.15;
+    const dirMultiplier = settings.orbitDirection === "counter" ? -1 : 1;
+
+    // 1. Отрисовка задней (дальней) половины колец
+    for (let i = 0; i < settings.ringCount; i++) {
+      const ringX = planetRadius * (1.38 + i * 0.18);
+      const ringY = planetRadius * (0.52 + i * 0.07);
+      drawRingHalf(planetX, planetY, ringX, ringY, Math.PI, Math.PI * 2, hexToRgba(colors.ring, 0.22), 2.2);
     }
 
-
-    /*
-      Луны позади планеты.
-    */
-
-    for (
-
-      let i = 0;
-
-      i < settings.moonCount;
-
-      i++
-
-    ) {
-
-
-      const angle =
-
-        time
-
-        *
-
-        settings.orbitSpeed
-
-        *
-
-        (
-
-          0.55
-
-          +
-
-          i
-
-          *
-
-          0.18
-
-        )
-
-        +
-
-        i
-
-        *
-
-        (
-
-          Math.PI
-
-          *
-
-          2
-
-          /
-
-          settings.moonCount
-
-        );
-
-
-      const orbitX =
-
-        planetRadius
-
-        *
-
-        (
-
-          1.85
-
-          +
-
-          i
-
-          *
-
-          0.42
-
-        );
-
-
-      const orbitY =
-
-        planetRadius
-
-        *
-
-        (
-
-          0.72
-
-          +
-
-          i
-
-          *
-
-          0.16
-
-        );
-
-
-      if (
-
-        Math.sin(
-          angle
-        )
-
-        <
-
-        0
-
-      ) {
-
-        circle(
-
-          planetX
-
-          +
-
-          Math.cos(
-            angle
-          )
-
-          *
-
-          orbitX,
-
-
-          planetY
-
-          +
-
-          Math.sin(
-            angle
-          )
-
-          *
-
-          orbitY,
-
-
-          planetRadius
-
-          *
-
-          (
-
-            0.15
-
-            -
-
-            i
-
-            *
-
-            0.02
-
-          ),
-
-
-          colors.moon
-
-        );
-
+    // 2. Дальние луны
+    for (let i = 0; i < settings.moonCount; i++) {
+      const angle = time * settings.orbitSpeed * dirMultiplier * (0.55 + i * 0.18) + i * (Math.PI * 2 / settings.moonCount);
+      const orbitX = planetRadius * (1.85 + i * 0.42);
+      const orbitY = planetRadius * (0.72 + i * 0.16);
+
+      if (Math.sin(angle) < 0) {
+        const moonRadius = planetRadius * (0.15 - i * 0.02);
+        const mx = planetX + Math.cos(angle) * orbitX;
+        const my = planetY + Math.sin(angle) * orbitY;
+        
+        const moonGrad = ctx.createRadialGradient(mx - moonRadius * 0.3, my - moonRadius * 0.3, moonRadius * 0.05, mx, my, moonRadius);
+        moonGrad.addColorStop(0, colors.moon);
+        moonGrad.addColorStop(1, colors.planet);
+        circle(mx, my, moonRadius, moonGrad);
       }
-
     }
 
-
-    /*
-      Планета.
-    */
-
-    const planetGradient =
-
-      ctx.createRadialGradient(
-
-        planetX
-
-        -
-
-        planetRadius
-
-        *
-
-        0.35,
-
-
-        planetY
-
-        -
-
-        planetRadius
-
-        *
-
-        0.4,
-
-
-        planetRadius
-
-        *
-
-        0.05,
-
-
-        planetX,
-
-        planetY,
-
-        planetRadius
-
-      );
-
-
-    planetGradient.addColorStop(
-
-      0,
-
-      colors.moon
-
-    );
-
-
-    planetGradient.addColorStop(
-
-      1,
-
-      colors.planet
-
-    );
-
-
-    circle(
-
-      planetX,
-
-      planetY,
-
-      planetRadius,
-
-      planetGradient
-
-    );
-
-
-    /*
-      Передние части колец.
-    */
-
-    for (
-
-      let i = 0;
-
-      i < settings.ringCount;
-
-      i++
-
-    ) {
-
-
-      const ringX =
-
-        planetRadius
-
-        *
-
-        (
-
-          1.38
-
-          +
-
-          i
-
-          *
-
-          0.18
-
-        );
-
-
-      const ringY =
-
-        planetRadius
-
-        *
-
-        (
-
-          0.52
-
-          +
-
-          i
-
-          *
-
-          0.07
-
-        );
-
-
-      drawRingHalf(
-
-        planetX,
-
-        planetY,
-
-        ringX,
-
-        ringY,
-
-        0,
-
-        Math.PI,
-
-        hexToRgba(
-
-          colors.ring,
-
-          0.75
-
-        ),
-
-        2.2
-
-      );
-
-    }
-
-
-    /*
-      Луны перед планетой.
-    */
-
-    for (
-
-      let i = 0;
-
-      i < settings.moonCount;
-
-      i++
-
-    ) {
-
-
-      const angle =
-
-        time
-
-        *
-
-        settings.orbitSpeed
-
-        *
-
-        (
-
-          0.55
-
-          +
-
-          i
-
-          *
-
-          0.18
-
-        )
-
-        +
-
-        i
-
-        *
-
-        (
-
-          Math.PI
-
-          *
-
-          2
-
-          /
-
-          settings.moonCount
-
-        );
-
-
-      const orbitX =
-
-        planetRadius
-
-        *
-
-        (
-
-          1.85
-
-          +
-
-          i
-
-          *
-
-          0.42
-
-        );
-
-
-      const orbitY =
-
-        planetRadius
-
-        *
-
-        (
-
-          0.72
-
-          +
-
-          i
-
-          *
-
-          0.16
-
-        );
-
-
-      if (
-
-        Math.sin(
-          angle
-        )
-
-        >=
-
-        0
-
-      ) {
-
-        circle(
-
-          planetX
-
-          +
-
-          Math.cos(
-            angle
-          )
-
-          *
-
-          orbitX,
-
-
-          planetY
-
-          +
-
-          Math.sin(
-            angle
-          )
-
-          *
-
-          orbitY,
-
-
-          planetRadius
-
-          *
-
-          (
-
-            0.15
-
-            -
-
-            i
-
-            *
-
-            0.02
-
-          ),
-
-
-          colors.moon
-
-        );
-
+    // 3. Тело планеты с градиентом
+    const planetGradient = ctx.createRadialGradient(planetX - planetRadius * 0.35, planetY - planetRadius * 0.4, planetRadius * 0.05, planetX, planetY, planetRadius);
+    planetGradient.addColorStop(0, colors.moon);
+    planetGradient.addColorStop(1, colors.planet);
+    circle(planetX, planetY, planetRadius, planetGradient);
+
+    // 3.1. Тени от БЛИЖНИХ лун на поверхности планеты (смещены вниз-вправо)
+    for (let i = 0; i < settings.moonCount; i++) {
+      const angle = time * settings.orbitSpeed * dirMultiplier * (0.55 + i * 0.18) + i * (Math.PI * 2 / settings.moonCount);
+      const orbitX = planetRadius * (1.85 + i * 0.42);
+      const orbitY = planetRadius * (0.72 + i * 0.16);
+
+      if (Math.sin(angle) >= 0) {
+        const moonRadius = planetRadius * (0.15 - i * 0.02);
+        const mx = planetX + Math.cos(angle) * orbitX;
+        const my = planetY + Math.sin(angle) * orbitY;
+
+        // Смещение вниз-вправо
+        const shadowX = mx + moonRadius * 0.35;
+        const shadowY = my + moonRadius * 0.35;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(planetX, planetY, planetRadius - 0.5, 0, Math.PI * 2);
+        ctx.clip();
+
+        ctx.beginPath();
+        ctx.arc(shadowX, shadowY, moonRadius * 0.9, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(0, 0, 0, 0.22)";
+        ctx.fill();
+        ctx.restore();
       }
-
     }
 
+    // 4. Передняя половина колец и мягкая тень от них на планете
+    for (let i = 0; i < settings.ringCount; i++) {
+      const ringX = planetRadius * (1.38 + i * 0.18);
+      const ringY = planetRadius * (0.52 + i * 0.07);
 
-    ctx.globalAlpha =
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(planetX, planetY, planetRadius - 0.5, 0, Math.PI * 2);
+      ctx.clip();
 
-      1;
+      ctx.beginPath();
+      ctx.ellipse(planetX, planetY, ringX, ringY, -0.24, 0, Math.PI);
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.28)";
+      ctx.lineWidth = 4.5;
+      ctx.stroke();
+      ctx.restore();
 
+      drawRingHalf(planetX, planetY, ringX, ringY, 0, Math.PI, hexToRgba(colors.ring, 0.75), 2.2);
+    }
 
-    requestAnimationFrame(
-      draw
-    );
+    // 5. Ближние луны
+    for (let i = 0; i < settings.moonCount; i++) {
+      const angle = time * settings.orbitSpeed * dirMultiplier * (0.55 + i * 0.18) + i * (Math.PI * 2 / settings.moonCount);
+      const orbitX = planetRadius * (1.85 + i * 0.42);
+      const orbitY = planetRadius * (0.72 + i * 0.16);
 
+      if (Math.sin(angle) >= 0) {
+        const moonRadius = planetRadius * (0.15 - i * 0.02);
+        const mx = planetX + Math.cos(angle) * orbitX;
+        const my = planetY + Math.sin(angle) * orbitY;
+
+        const moonGrad = ctx.createRadialGradient(mx - moonRadius * 0.3, my - moonRadius * 0.3, moonRadius * 0.05, mx, my, moonRadius);
+        moonGrad.addColorStop(0, colors.moon);
+        moonGrad.addColorStop(1, colors.planet);
+        circle(mx, my, moonRadius, moonGrad);
+      }
+    }
+
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
   }
 
-
-  window.addEventListener(
-
-    "wallpaperEngineReady",
-
-    event => {
-
-
-      loadSettings();
-
-
-      const detail =
-
-        event.detail;
-
-
-      if (
-
-        detail
-
-        &&
-
-        detail.battery
-
-        &&
-
-        typeof
-
-        detail.battery.isCharging
-
-        ===
-
-        "boolean"
-
-      ) {
-
-        isCharging =
-
-          detail.battery
-            .isCharging;
-
-      }
-
-
-      updatePalette(
-        detail
-      );
-
-    }
-
-  );
-
-
-  window.addEventListener(
-
-    "wallpaperUpdate",
-
-    event => {
-
-
-      const detail =
-
-        event.detail;
-
-
-      loadSettings();
-
-
-      updatePalette(
-        detail
-      );
-
-
-      if (
-
-        detail
-
-        &&
-
-        detail.battery
-
-        &&
-
-        typeof
-
-        detail.battery.isCharging
-
-        ===
-
-        "boolean"
-
-      ) {
-
-        isCharging =
-
-          detail.battery
-            .isCharging;
-
-      }
-
-    }
-
-  );
-
-
-  if (
-
-    !window.WallpaperEngine
-
-  ) {
-
+  window.addEventListener("wallpaperEngineReady", event => {
     loadSettings();
+    const detail = event.detail;
+    if (detail && detail.battery && typeof detail.battery.isCharging === "boolean") {
+      isCharging = detail.battery.isCharging;
+    }
+    updatePalette(detail);
+  });
 
-    updatePalette(
-      null
-    );
+  window.addEventListener("wallpaperUpdate", event => {
+    const detail = event.detail;
+    loadSettings();
+    updatePalette(detail);
+    if (detail && detail.battery && typeof detail.battery.isCharging === "boolean") {
+      isCharging = detail.battery.isCharging;
+    }
+  });
 
+  if (!getEngine()) {
+    loadSettings();
+    updatePalette(null);
   }
 
-
-  window.addEventListener(
-
-    "resize",
-
-    resize
-
-  );
-
-
+  window.addEventListener("resize", resize);
   resize();
-
-
-  requestAnimationFrame(
-    draw
-  );
-
-
+  requestAnimationFrame(draw);
 })();
-
 </script>
-
 </body>
-
 </html>
