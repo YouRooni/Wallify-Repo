@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-06T12:33:38Z",
+  "updatedAt": "2026-08-26T11:07:16Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -237,7 +237,7 @@
       "id": "mini-orbit",
       "name": "Mini Orbit",
       "author": "Artho",
-      "version": "1.3.5",
+      "version": "1.7.1",
       "description": "Минималистичная космическая система с планетой и вращающимися лунами",
       "path": "wallpapers/mini-orbit",
       "main": "index.html",
@@ -254,7 +254,7 @@
         "planet"
       ],
       "createdAt": "2026-08-01T05:20:18Z",
-      "updatedAt": "2026-08-02T06:07:26Z",
+      "updatedAt": "2026-08-21T10:35:24Z",
       "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/mini-orbit.zip"
     },
     {
@@ -431,6 +431,71 @@
       "createdAt": "2026-08-06T12:33:38Z",
       "updatedAt": "2026-08-06T12:33:38Z",
       "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3e-shapes-lite.zip"
+    },
+    {
+      "id": "Lagoon",
+      "name": "Lagoon",
+      "author": "Jardaken",
+      "version": "2.0.0",
+      "description": "Органичные цветные пятна, разделённые светлыми извилистыми протоками — как лагуна сверху. Протоки медленно текут, углы между ними плавно скруглены, картина слегка покачивается. При разблокировке по поверхности расходится волна, а некоторые грани ловят блик от наклона телефона. WebGL, полноценный выбор цвета, поддержка Monet.",
+      "path": "wallpapers/Lagoon",
+      "main": "index.html",
+      "useGyroscope": true,
+      "isLite": false,
+      "cover": "cover.jpg",
+      "icon": "cover.jpg",
+      "supportsMonet": true,
+      "createdAt": "2026-08-19T16:10:52Z",
+      "updatedAt": "2026-08-19T16:10:52Z",
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/Lagoon.zip"
+    },
+    {
+      "id": "m3-expressive-shapes",
+      "name": "Material 3 Expressive Shapes",
+      "author": "wafuv",
+      "version": "1.0.0",
+      "description": "Живые обои с парящими и динамично меняющими форму фигурами.",
+      "path": "wallpapers/m3-expressive-shapes",
+      "main": "index.html",
+      "useGyroscope": true,
+      "isLite": false,
+      "cover": "cover.png",
+      "icon": "icon.png",
+      "createdAt": "2026-08-19T16:10:52Z",
+      "updatedAt": "2026-08-19T16:10:52Z",
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-expressive-shapes.zip"
+    },
+    {
+      "id": "m3-expressive-shapes-lite",
+      "name": "Material 3 Expressive Shapes Lite",
+      "author": "wafuv",
+      "version": "1.0.0",
+      "description": "Облегчённая версия живых обоев в стиле Material 3 Expressive.",
+      "path": "wallpapers/m3-expressive-shapes-lite",
+      "main": "index.html",
+      "useGyroscope": true,
+      "isLite": true,
+      "cover": "cover.png",
+      "icon": "icon.png",
+      "createdAt": "2026-08-19T16:10:52Z",
+      "updatedAt": "2026-08-19T16:10:52Z",
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/m3-expressive-shapes-lite.zip"
+    },
+    {
+      "id": "android-4-light-grid",
+      "name": "Android 4 Light Grid",
+      "author": "nector",
+      "version": "1.0.2",
+      "description": "Реконструкция живых обоев Android 4: тёмная треугольная сетка и световые неоновые полосы.",
+      "path": "wallpapers/android-4-light-grid",
+      "main": "index.html",
+      "useGyroscope": true,
+      "isLite": false,
+      "cover": "cover.png",
+      "icon": "icon.png",
+      "createdAt": "2026-08-26T10:56:37Z",
+      "updatedAt": "2026-08-26T10:56:37Z",
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/android-4-light-grid.zip"
     }
   ]
 }
