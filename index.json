@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-08-26T11:07:16Z",
+  "updatedAt": "2026-09-02T01:20:08Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -496,6 +496,22 @@
       "createdAt": "2026-08-26T10:56:37Z",
       "updatedAt": "2026-08-26T10:56:37Z",
       "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/android-4-light-grid.zip"
+    },
+    {
+      "id": "dvd-screensaver",
+      "name": "DVD Screensaver",
+      "author": "wafuv",
+      "version": "1.0.0",
+      "description": "Классический прыгающий логотип, меняющий цвет при столкновении с краями экрана.",
+      "path": "wallpapers/dvd-screensaver",
+      "main": "index.html",
+      "useGyroscope": false,
+      "isLite": false,
+      "cover": "cover.png",
+      "icon": "icon.png",
+      "createdAt": "2026-09-02T01:20:08Z",
+      "updatedAt": "2026-09-02T01:20:08Z",
+      "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/dvd-screensaver.zip"
     }
   ]
 }
