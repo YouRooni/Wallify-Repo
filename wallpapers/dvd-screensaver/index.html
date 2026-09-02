@@ -6,109 +6,152 @@
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
         canvas { display: block; }
+        #dvdLogo { display: none; }
     </style>
 </head>
 <body>
+    <img id="dvdLogo" src="DVD.png">
     <canvas id="dvdCanvas"></canvas>
+
     <script>
         const canvas = document.getElementById('dvdCanvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { alpha: false }); // Отключаем альфа-канал на главном холсте для скорости
+        const logoImg = document.getElementById('dvdLogo');
         
         let isPaused = false;
         let lastTime = performance.now();
         let reqId;
 
-        // Скорость оригинального DVD: ~12% высоты экрана в секунду
         const SPEED_RATIO = 0.12; 
 
-        const logo = {
+        let dirX = 1;
+        let dirY = 1;
+        let currentSpeed = 0.1;
+
+        const logo = { 
             width: 170, 
-            height: 75,
-            x: 40,
-            y: 40,
-            vx: 1,
-            vy: 1,
-            color: '#ff0000'
+            height: 75, 
+            x: 40, 
+            y: 40, 
+            color: '#ffffff' 
         };
 
-        const colors = ['#ff0000', '#00ff00', '#0080ff', '#ffff00', '#ff00ff', '#00ffff'];
+        const colors = [
+            '#ff0000', '#00ff00', '#0080ff', 
+            '#ffff00', '#ff00ff', '#00ffff'
+        ];
 
-        const offCanvas = document.createElement('canvas');
-        const offCtx = offCanvas.getContext('2d');
+        // Словарь для хранения готовых перекрашенных логотипов
+        const cachedLogos = {};
+        let isLoaded = false;
+        let currentCanvas = null;
 
-        const logoImg = new Image();
-        logoImg.src = 'DVD.png';
-        
-        logoImg.onload = () => {
-            logo.height = (logoImg.height / logoImg.width) * logo.width;
-            offCanvas.width = logo.width;
-            offCanvas.height = logo.height;
-        };
+        // Создает и возвращает холст с перекрашенным логотипом
+        function createTintedCanvas(color) {
+            const oc = document.createElement('canvas');
+            const oCtx = oc.getContext('2d', { willReadFrequently: true });
+            oc.width = logo.width;
+            oc.height = logo.height;
+            
+            oCtx.drawImage(logoImg, 0, 0, logo.width, logo.height);
+            oCtx.globalCompositeOperation = 'source-in';
+            oCtx.fillStyle = color;
+            oCtx.fillRect(0, 0, logo.width, logo.height);
+            oCtx.globalCompositeOperation = 'source-over';
+            
+            return oc;
+        }
+
+        function initLogo() {
+            if (isLoaded) return;
+            if (logoImg.naturalWidth > 0 && logoImg.naturalHeight > 0) {
+                isLoaded = true;
+                logo.height = Math.round((logoImg.naturalHeight / logoImg.naturalWidth) * logo.width);
+                
+                // Предварительно рендерим ВСЕ цвета при запуске
+                cachedLogos['#ffffff'] = createTintedCanvas('#ffffff');
+                for (let i = 0; i < colors.length; i++) {
+                    cachedLogos[colors[i]] = createTintedCanvas(colors[i]);
+                }
+                
+                currentCanvas = cachedLogos['#ffffff'];
+                renderFrame(); 
+            }
+        }
+
+        function renderFrame() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Округляем координаты для быстрой отрисовки без субпиксельного сглаживания (anti-aliasing)
+            if (isLoaded && currentCanvas) {
+                ctx.drawImage(currentCanvas, Math.round(logo.x), Math.round(logo.y));
+            }
+        }
 
         function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            // Рассчитываем точную скорость для сохранения угла 45° и оригинального темпа
-            const speed = (canvas.height * SPEED_RATIO) / 1000; // пикселей в миллисекунду
-            const dirX = logo.vx >= 0 ? 1 : -1;
-            const dirY = logo.vy >= 0 ? 1 : -1;
-            
-            logo.vx = dirX * speed;
-            logo.vy = dirY * speed;
+            canvas.width = window.innerWidth || 360;
+            canvas.height = window.innerHeight || 640;
+            currentSpeed = (canvas.height * SPEED_RATIO) / 1000;
+            if (isLoaded) renderFrame();
         }
+        
         window.addEventListener('resize', resize);
-
-        function getTintedLogo(color) {
-            offCtx.clearRect(0, 0, offCanvas.width, offCanvas.height);
-            offCtx.drawImage(logoImg, 0, 0, logo.width, logo.height);
-            offCtx.globalCompositeOperation = 'source-in';
-            offCtx.fillStyle = color;
-            offCtx.fillRect(0, 0, offCanvas.width, offCanvas.height);
-            offCtx.globalCompositeOperation = 'source-over';
-            return offCanvas;
-        }
+        
+        logoImg.onload = initLogo;
+        resize();
+        if (logoImg.complete) initLogo();
 
         function update(time) {
             if (isPaused) return;
-            const dt = time - lastTime;
+            
+            const dt = Math.min(time - lastTime, 100);
             lastTime = time;
 
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            if (!logoImg.complete || logoImg.naturalWidth === 0) {
+            if (!isLoaded) {
+                initLogo();
+                renderFrame();
                 reqId = requestAnimationFrame(update);
                 return;
             }
 
-            logo.x += logo.vx * dt;
-            logo.y += logo.vy * dt;
+            logo.x += dirX * currentSpeed * dt;
+            logo.y += dirY * currentSpeed * dt;
 
             let bounced = false;
-            
-            if (logo.x <= 0) { 
-                logo.x = 0; logo.vx *= -1; bounced = true; 
+
+            if (logo.x <= 0) {
+                logo.x = 0;
+                dirX = 1;
+                bounced = true;
+            } else if (logo.x + logo.width >= canvas.width) {
+                logo.x = canvas.width - logo.width;
+                dirX = -1;
+                bounced = true;
             }
-            if (logo.x + logo.width >= canvas.width) { 
-                logo.x = canvas.width - logo.width; logo.vx *= -1; bounced = true; 
-            }
-            if (logo.y <= 0) { 
-                logo.y = 0; logo.vy *= -1; bounced = true; 
-            }
-            if (logo.y + logo.height >= canvas.height) { 
-                logo.y = canvas.height - logo.height; logo.vy *= -1; bounced = true; 
+
+            if (logo.y <= 0) {
+                logo.y = 0;
+                dirY = 1;
+                bounced = true;
+            } else if (logo.y + logo.height >= canvas.height) {
+                logo.y = canvas.height - logo.height;
+                dirY = -1;
+                bounced = true;
             }
 
             if (bounced) {
                 let newColor;
-                do { 
-                    newColor = colors[Math.floor(Math.random() * colors.length)]; 
+                do {
+                    newColor = colors[Math.floor(Math.random() * colors.length)];
                 } while (newColor === logo.color);
+                
                 logo.color = newColor;
+                // Вместо перекрашивания просто берем готовый холст из памяти (мгновенно!)
+                currentCanvas = cachedLogos[logo.color];
             }
 
-            ctx.drawImage(getTintedLogo(logo.color), logo.x, logo.y);
+            renderFrame();
+
             reqId = requestAnimationFrame(update);
         }
 
@@ -123,7 +166,6 @@
             reqId = requestAnimationFrame(update);
         });
 
-        resize();
         reqId = requestAnimationFrame(update);
     </script>
 </body>
