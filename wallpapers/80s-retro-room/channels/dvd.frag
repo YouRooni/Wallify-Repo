@@ -1,3 +1,13 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    channels/dvd.frag
+    DVD Logo is a registered trademark of DVD Format/Logo Licensing Corporation (DVD FLLC).
+*/
+
 precision mediump float;
 
 uniform vec2 u_resolution;
@@ -18,7 +28,7 @@ float sdBox(vec2 p, vec2 b) {
   return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
-// Процедурный глиф "D"
+// процедурный глиф "D"
 float letterD(vec2 p) {
   float outer = length(vec2(max(0.0, p.x), p.y)) - 0.035;
   outer = max(outer, -p.x - 0.03);
@@ -32,7 +42,7 @@ float letterD(vec2 p) {
   return min(bar, max(outer, -inner));
 }
 
-// Процедурный глиф "V"
+// процедурный глиф "V"
 float letterV(vec2 p) {
   p.x = abs(p.x);
   vec2 a = vec2(0.025, 0.035);
@@ -45,11 +55,11 @@ float letterV(vec2 p) {
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
 
-  // Границы кинескопа (соотношение 256x192)
+  // границы кинескопа (соотношение 256x192)
   vec2 halfBox = vec2(0.14, 0.065);
   vec2 limit = vec2(0.666 - halfBox.x - 0.03, 0.500 - halfBox.y - 0.03);
 
-  // Траектория отскоков по осям X и Y
+  // траектория отскоков по осям X и Y
   float tX = u_time * 0.28 + 0.15;
   float tY = u_time * 0.21 + 0.40;
 
@@ -58,7 +68,7 @@ void main() {
     pingpong(tY, 2.0 * limit.y) - limit.y
   );
 
-  // Смена цвета при ударах о границы
+  // смена цвета при ударах о границы
   float hitCount = floor(tX / (2.0 * limit.x)) + floor(tY / (2.0 * limit.y));
   float colorIdx = mod(hitCount, 3.0);
 
@@ -68,13 +78,13 @@ void main() {
 
   vec2 p = uv - pos;
 
-  // Овальный диск под надписью
+  // овальный диск под надписью
   vec2 discP = p - vec2(0.0, -0.038);
   float disc = length(discP * vec2(1.0, 3.2)) - 0.105;
   float discHole = length(discP * vec2(1.0, 3.2)) - 0.035;
   float discShape = max(abs(disc) - 0.006, -discHole);
 
-  // Надпись "D V D"
+  // надпись "D V D"
   float d1 = letterD(p - vec2(-0.068, 0.01));
   float v  = letterV(p - vec2( 0.000, 0.01));
   float d2 = letterD(p - vec2( 0.068, 0.01));

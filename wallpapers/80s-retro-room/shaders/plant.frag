@@ -1,6 +1,16 @@
-// shaders/plant.glsl
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    shaders/plant.frag
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 vec4 renderPlant(vec2 uv, float time, float dither, vec3 colBg, vec3 colSurf, vec3 colSec, vec3 colPrim) {
-  // Bounding Box
+  // bounding box
   if (abs(uv.x - (-0.29)) > 0.10 || uv.y < -0.52 || uv.y > -0.28) {
     return vec4(0.0);
   }
@@ -8,7 +18,7 @@ vec4 renderPlant(vec2 uv, float time, float dither, vec3 colBg, vec3 colSurf, ve
   vec2 plantPos = vec2(-0.29, -0.42);
   vec2 p = uv - plantPos;
 
-  // Тень
+  // тень
   float shadow = sdRoundBox(p - vec2(0.015, -0.058), vec2(0.046, 0.010), 0.008);
   if (shadow < 0.0 && p.y < -0.04) {
     return vec4(colBg * 0.4, 0.65);
@@ -22,7 +32,7 @@ vec4 renderPlant(vec2 uv, float time, float dither, vec3 colBg, vec3 colSurf, ve
   float body = sdRoundBox(p - vec2(0.0, -0.024), vec2(halfW, 0.026), 0.004);
   float soil = sdRoundBox(rimP - vec2(0.0, -0.002), vec2(0.038, 0.003), 0.002);
 
-  // Листья
+  // листья с покачиванием
   float sway = sin(time * 1.8) * 0.05;
 
   vec2 l1P = p - vec2(-0.038, 0.028);

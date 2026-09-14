@@ -1,3 +1,14 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    channels/landscape.frag
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 precision mediump float;
 
 uniform vec2 u_resolution;
@@ -13,7 +24,7 @@ void main() {
   float horizon = -0.05;
 
   if (uv.y > horizon) {
-    // Небо и солнце
+    // небо и солнце
     vec2 sunUV = uv - vec2(0.0, 0.13);
     float sunDist = length(sunUV);
     float sunRadius = 0.23;
@@ -35,12 +46,12 @@ void main() {
 
     vec2 gridUV = vec2(x, z + u_time * 1.5);
 
-    // Холмы по бокам
+    // холмы по бокам
     float hills = sin(gridUV.x * 0.8) * cos(gridUV.y * 0.4) * 0.2;
     float valley = smoothstep(0.0, 1.2, abs(x));
     gridUV.y += hills * valley;
 
-    // Сетка без fwidth (совместимо с WebGL 1.0)
+    // сетка без fwidth (совместимо с WebGL 1.0)
     vec2 lines = abs(sin(gridUV * 3.14159));
     float gridMask = step(0.88, max(lines.x, lines.y));
 

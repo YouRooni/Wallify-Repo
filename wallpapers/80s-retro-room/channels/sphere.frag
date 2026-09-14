@@ -1,3 +1,14 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    channels/sphere.frag
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 precision mediump float;
 
 uniform vec2 u_resolution;

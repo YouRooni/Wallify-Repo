@@ -1,3 +1,14 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    shaders/main.frag
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 precision mediump float;
 
 uniform vec2 u_resolution;
@@ -6,6 +17,9 @@ uniform sampler2D u_tv_texture;
 uniform float u_knob_angle;
 uniform float u_is_noise;
 uniform float u_interference;
+uniform float u_cat_twitch;
+uniform vec4 u_vcr_time;
+uniform vec2 u_tapes_wiggle;
 uniform vec2 u_ant_angles;
 uniform int u_wall_pattern;
 uniform float u_wall_density;
@@ -21,7 +35,6 @@ float hash(vec2 p) {
   return fract(p.x * p.y);
 }
 
-// Быстрая выборка матрицы Байера без 16 ветвлений
 float bayer4(vec2 p) {
   vec2 b = mod(floor(p), 4.0);
   vec4 r0 = vec4(0.0, 8.0, 2.0, 10.0);
@@ -57,10 +70,9 @@ void main() {
   vec2 pCoord = floor(gl_FragCoord.xy);
   vec2 uv = (pCoord - 0.5 * u_resolution.xy) / u_resolution.x;
 
-  // Предрасчет дизеринга один раз для всего пикселя
   float dither = bayer4(pCoord) - 0.5;
 
-  // 1. Обои
+  // обои на стене
   float pattern = 0.0;
   if (u_wall_pattern == 0) {
     pattern = step(0.5, sin(uv.x * u_wall_density) * 0.5 + 0.5);
@@ -70,12 +82,28 @@ void main() {
   }
   vec3 wallColor = mix(u_col_bg, u_col_surface, pattern * 0.16);
 
-  // 2. Стол
+  // анимированные лучи света от окна с мерцанием листвы
+  float windowLight = getWindowLightMask(uv, u_time, dither);
+  wallColor += u_col_primary * windowLight;
+
+  // декорации стены (Постер и живое Окно)
+  vec4 poster = renderPoster(uv, dither, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
+  if (poster.a > 0.0) {
+    wallColor = mix(wallColor, poster.rgb, poster.a);
+  }
+
+  vec4 windowProp = renderWindow(uv, u_time, dither, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
+  if (windowProp.a > 0.0) {
+    wallColor = mix(wallColor, windowProp.rgb, windowProp.a);
+  }
+
+  // стол под техникой
   float tableY = -0.32;
   float isTable = step(uv.y, tableY);
   vec3 tableBase = mix(u_col_surface * 0.7, u_col_bg * 0.55, abs(uv.y - tableY) * 2.0);
+  tableBase += u_col_primary * windowLight * 0.65;
 
-  // 3. Отражение на столе (3 быстрых выборки вместо 5)
+  // отражение экрана на столе
   vec2 tvCenter = vec2(0.0, -0.04);
   vec2 tvP = uv - tvCenter;
   vec3 reflectionColor = vec3(0.0);
@@ -107,11 +135,11 @@ void main() {
   }
   vec3 color = mix(wallColor, tableBase + reflectionColor, isTable);
 
-  // 4. Тень телевизора
+  // тень телевизора
   float shadow = sdRoundBox(tvP - vec2(0.02, -0.03), vec2(0.40, 0.28), 0.06);
   color = mix(color, color * 0.45, step(shadow, 0.02));
 
-  // 5. Антенна с AABB-отсечением (считается только в зоне над ТВ)
+  // антенны
   if (tvP.y > 0.22 && tvP.y < 0.48 && abs(tvP.x) < 0.26) {
     vec2 antBase = vec2(0.0, 0.24);
     float mount = sdRoundBox(tvP - antBase, vec2(0.032, 0.008), 0.004);
@@ -136,7 +164,7 @@ void main() {
     }
   }
 
-  // 6. Корпус ТВ
+  // корпус телевизора
   float tvBody = sdRoundBox(tvP, vec2(0.40, 0.28), 0.045);
   if (tvBody < 0.0) {
     color = mix(u_col_surface * 0.95, u_col_bg * 0.85, length(tvP) * 1.2);
@@ -145,7 +173,7 @@ void main() {
       color = u_col_surface * 1.15;
     }
 
-    // 7. Кинескоп
+    // кинескоп
     vec2 screenP = tvP - vec2(-0.075, 0.0);
     float screenBevel = sdRoundBox(screenP, vec2(0.27, 0.22), 0.04);
 
@@ -196,7 +224,7 @@ void main() {
       }
     }
 
-    // 8. Тумблер
+    // тумблер
     vec2 knobP = tvP - vec2(0.29, 0.08);
     float knobDist = length(knobP) - 0.052;
     if (knobDist < 0.0) {
@@ -210,7 +238,7 @@ void main() {
       }
     }
 
-    // Решётка
+    // динамик
     vec2 spkP = tvP - vec2(0.29, -0.12);
     if (abs(spkP.x) < 0.065 && abs(spkP.y) < 0.07) {
       float slots = step(0.5, fract(pCoord.y * 0.25));
@@ -218,7 +246,19 @@ void main() {
     }
   }
 
-  // 9. Декорации с ранним выходом и готовым dither
+  // видеомагнитофон под ТВ
+  vec4 vcr = renderVCR(uv, u_time, dither, u_vcr_time, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
+  if (vcr.a > 0.0) {
+    color = mix(color, vcr.rgb, vcr.a);
+  }
+
+  // видеокассеты VHS
+  vec4 tapes = renderTapes(uv, u_time, dither, u_tapes_wiggle, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
+  if (tapes.a > 0.0) {
+    color = mix(color, tapes.rgb, tapes.a);
+  }
+
+  // декорации на столе и крышке ТВ
   vec4 plant = renderPlant(uv, u_time, dither, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
   if (plant.a > 0.0) {
     color = mix(color, plant.rgb, plant.a);
@@ -227,6 +267,11 @@ void main() {
   vec4 mug = renderMug(uv, u_time, dither, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
   if (mug.a > 0.0) {
     color = mix(color, mug.rgb, mug.a);
+  }
+
+  vec4 cat = renderCat(uv, u_time, dither, u_cat_twitch, u_col_bg, u_col_surface, u_col_secondary, u_col_primary);
+  if (cat.a > 0.0) {
+    color = mix(color, cat.rgb, cat.a);
   }
 
   gl_FragColor = vec4(color, 1.0);
