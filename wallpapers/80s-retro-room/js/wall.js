@@ -1,5 +1,16 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    js/wall.js
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 window.WallManager = {
-  // 0: винтажные вертикальные полосы, 1: ромбовидная сетка (trellis)
+  // винтажные вертикальные полосы, ромбовидная сетка (trellis)
   patternType: 0,
   density: 32.0,
   stripesContrast: 0.18,

@@ -1,3 +1,14 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    js/main.js
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 (async function() {
   const canvas = document.getElementById('glcanvas');
   const gl = canvas.getContext('webgl', { 
@@ -10,7 +21,7 @@
 
   async function loadShaderText(url) {
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`Ошибка загрузки: ${url}`);
+    if (!res.ok) throw new Error(`Ошибка загрузки: ${url} (код: ${res.status})`);
     return await res.text();
   }
 
@@ -22,7 +33,9 @@
       gl.shaderSource(sh, src);
       gl.compileShader(sh);
       if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-        console.error(gl.getShaderInfoLog(sh));
+        const err = gl.getShaderInfoLog(sh);
+        console.error('Shader compile error:', err);
+        throw new Error(err);
       }
       return sh;
     }
@@ -30,6 +43,12 @@
     gl.attachShader(p, compile(gl.VERTEX_SHADER, vsSrc));
     gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fsSrc));
     gl.linkProgram(p);
+
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+      const err = gl.getProgramInfoLog(p);
+      console.error('Program link error:', err);
+      throw new Error(err);
+    }
 
     const aPos = gl.getAttribLocation(p, 'a_p');
     gl.enableVertexAttribArray(aPos);
@@ -43,12 +62,15 @@
         knob: gl.getUniformLocation(p, 'u_knob_angle'),
         isNoise: gl.getUniformLocation(p, 'u_is_noise'),
         interference: gl.getUniformLocation(p, 'u_interference'),
+        catTwitch: gl.getUniformLocation(p, 'u_cat_twitch'),
+        vcrTime: gl.getUniformLocation(p, 'u_vcr_time'),
+        tapesWiggle: gl.getUniformLocation(p, 'u_tapes_wiggle'),
         antAngles: gl.getUniformLocation(p, 'u_ant_angles'),
         tex: gl.getUniformLocation(p, 'u_tv_texture'),
         wallPat: gl.getUniformLocation(p, 'u_wall_pattern'),
         wallDen: gl.getUniformLocation(p, 'u_wall_density'),
         cBg: gl.getUniformLocation(p, 'u_col_bg'),
-        cS盈: gl.getUniformLocation(p, 'u_col_surface'),
+        cSurf: gl.getUniformLocation(p, 'u_col_surface'),
         cSec: gl.getUniformLocation(p, 'u_col_secondary'),
         cPrim: gl.getUniformLocation(p, 'u_col_primary')
       }
@@ -59,18 +81,32 @@
   gl.bindBuffer(gl.ARRAY_BUFFER, quadBuf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
 
-  const [mainFs, mugFs, plantFs, noiseFs, landFs, sphereFs, dvdFs, pongFs] = await Promise.all([
+  // загрузка сцены, фона, декораций и каналов
+  const [
+    mainFs, mugFs, plantFs, catFs, vcrFs, tapesFs, windowFs, posterFs,
+    noiseFs, landFs, sphereFs, dvdFs, pongFs, pacmanFs
+  ] = await Promise.all([
     loadShaderText('shaders/main.frag'),
     loadShaderText('shaders/mug.frag'),
     loadShaderText('shaders/plant.frag'),
+    loadShaderText('shaders/cat.frag'),
+    loadShaderText('shaders/vcr.frag'),
+    loadShaderText('shaders/tapes.frag'),
+    loadShaderText('shaders/window.frag'),
+    loadShaderText('shaders/poster.frag'),
     loadShaderText('channels/noise.frag'),
     loadShaderText('channels/landscape.frag'),
     loadShaderText('channels/sphere.frag'),
     loadShaderText('channels/dvd.frag'),
-    loadShaderText('channels/pong.frag')
+    loadShaderText('channels/pong.frag'),
+    loadShaderText('channels/pacman.frag')
   ]);
 
-  const assembledMainFs = mainFs.replace('// [PROPS_HOOK]', `${mugFs}\n${plantFs}`);
+  // сборка всех модулей в единый шейдер комнаты
+  const assembledMainFs = mainFs.replace(
+    '// [PROPS_HOOK]', 
+    `${windowFs}\n${posterFs}\n${vcrFs}\n${tapesFs}\n${mugFs}\n${plantFs}\n${catFs}`
+  );
 
   const roomProg = createProgram(assembledMainFs);
   const noiseProg = createProgram(noiseFs);
@@ -78,7 +114,8 @@
     createProgram(landFs),
     createProgram(sphereFs),
     createProgram(dvdFs),
-    createProgram(pongFs)
+    createProgram(pongFs),
+    createProgram(pacmanFs)
   ];
 
   const FBO_W = 256, FBO_H = 192;
@@ -104,7 +141,7 @@
 
   function applyColors(locs) {
     if (locs.cBg) gl.uniform3fv(locs.cBg, colors.bg);
-    if (locs.cS盈) gl.uniform3fv(locs.cS盈, colors.surf);
+    if (locs.cSurf) gl.uniform3fv(locs.cSurf, colors.surf);
     if (locs.cSec) gl.uniform3fv(locs.cSec, colors.sec);
     if (locs.cPrim) gl.uniform3fv(locs.cPrim, colors.prim);
   }
@@ -152,6 +189,7 @@
     const tvP_X = uvX;
     const tvP_Y = uvY - (-0.04);
 
+    // тумблер каналов
     const dKnob = Math.hypot(tvP_X - 0.29, tvP_Y - 0.08);
     if (dKnob <= 0.055) {
       activePointers.set(e.pointerId, 'knob');
@@ -159,6 +197,22 @@
       return;
     }
 
+    // кот
+    if (window.CatManager && window.CatManager.checkHit(uvX, uvY)) {
+      return;
+    }
+
+    // VCR
+    if (window.VCRManager && window.VCRManager.checkHit(uvX, uvY)) {
+      return;
+    }
+
+    // кассеты
+    if (window.TapesManager && window.TapesManager.checkHit(uvX, uvY)) {
+      return;
+    }
+
+    // антенны
     const tipLx = antBaseL.x + Math.cos(targetAntAngleL) * ROD_LEN;
     const tipLy = antBaseL.y + Math.sin(targetAntAngleL) * ROD_LEN;
     const tipRx = antBaseR.x + Math.cos(targetAntAngleR) * ROD_LEN;
@@ -205,7 +259,6 @@
   window.addEventListener('pointerup', releasePointer);
   window.addEventListener('pointercancel', releasePointer);
 
-  // ГЛАВНЫЙ БУСТ: фиксированный ретро-шаг (ширина ~240 виртуальных пикселей)
   const PIXEL_SCALE = 3.5;
   function resize() {
     const w = Math.max(1, Math.floor(window.innerWidth / PIXEL_SCALE));
@@ -232,6 +285,10 @@
     const isNoiseActive = noiseTimer > 0.0;
     if (isNoiseActive) noiseTimer -= dt;
 
+    if (window.CatManager) window.CatManager.update(dt);
+    if (window.VCRManager) window.VCRManager.update(dt);
+    if (window.TapesManager) window.TapesManager.update(dt);
+
     knobAngle += (targetKnobAngle - knobAngle) * 0.25;
     antAngleL += (targetAntAngleL - antAngleL) * 0.22;
     antAngleR += (targetAntAngleR - antAngleR) * 0.22;
@@ -252,7 +309,7 @@
     }
     prevInterference = interference;
 
-    // Пасс 1: FBO
+    // пасс 1: FBO канала
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
     gl.viewport(0, 0, FBO_W, FBO_H);
 
@@ -263,7 +320,7 @@
     applyColors(activeProg.locs);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    // Пасс 2: Главный экран
+    // пасс 2: Главный экран
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvas.width, canvas.height);
 
@@ -273,6 +330,14 @@
     gl.uniform1f(roomProg.locs.knob, knobAngle);
     gl.uniform1f(roomProg.locs.isNoise, isNoiseActive ? 1.0 : 0.0);
     gl.uniform1f(roomProg.locs.interference, interference);
+    gl.uniform1f(roomProg.locs.catTwitch, window.CatManager ? window.CatManager.getTwitch() : 0.0);
+
+    const vcrTimeVec = window.VCRManager ? window.VCRManager.getTimeVec() : [12.0, 0.0, 0.0, 1.0];
+    gl.uniform4fv(roomProg.locs.vcrTime, vcrTimeVec);
+
+    const tapesWiggleVec = window.TapesManager ? window.TapesManager.getWiggleVec() : [0.0, 0.0];
+    gl.uniform2fv(roomProg.locs.tapesWiggle, tapesWiggleVec);
+
     gl.uniform2f(roomProg.locs.antAngles, antAngleL, antAngleR);
 
     if (window.WallManager) {

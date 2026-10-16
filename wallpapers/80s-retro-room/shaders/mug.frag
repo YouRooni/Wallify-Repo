@@ -1,6 +1,16 @@
-// shaders/mug.glsl
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    shaders/mug.frag
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 vec4 renderMug(vec2 uv, float time, float dither, vec3 colBg, vec3 colSurf, vec3 colSec, vec3 colPrim) {
-  // Bounding Box: отсекаем 98% пикселей экрана сразу
+  // bounding box: отсекаем 98% пикселей экрана сразу
   if (abs(uv.x - 0.28) > 0.09 || uv.y < -0.52 || uv.y > -0.28) {
     return vec4(0.0);
   }
@@ -8,13 +18,13 @@ vec4 renderMug(vec2 uv, float time, float dither, vec3 colBg, vec3 colSurf, vec3
   vec2 mugPos = vec2(0.28, -0.45);
   vec2 p = uv - mugPos;
 
-  // Тень
+  // тень
   float shadow = sdRoundBox(p - vec2(0.012, -0.038), vec2(0.042, 0.010), 0.008);
   if (shadow < 0.0 && p.y < -0.02) {
     return vec4(colBg * 0.4, 0.65);
   }
 
-  // Ручка
+  // ручка
   vec2 handleP = p - vec2(0.042, 0.002);
   float handleOuter = length(handleP * vec2(1.0, 1.25)) - 0.022;
   float handleInner = length(handleP * vec2(1.0, 1.25)) - 0.011;
@@ -27,7 +37,7 @@ vec4 renderMug(vec2 uv, float time, float dither, vec3 colBg, vec3 colSurf, vec3
   float rim = sdRoundBox(rimP, vec2(0.034, 0.005), 0.003);
   float coffee = sdRoundBox(rimP - vec2(0.0, -0.002), vec2(0.028, 0.003), 0.002);
 
-  // Пар
+  // пар
   if (p.y > 0.042 && p.y < 0.16 && abs(p.x) < 0.045) {
     float wave1 = sin(p.y * 38.0 - time * 3.5 + p.x * 20.0) * 0.008;
     float wave2 = cos(p.y * 45.0 - time * 4.0 - p.x * 15.0) * 0.007;

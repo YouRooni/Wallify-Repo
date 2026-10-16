@@ -1,3 +1,14 @@
+/*
+         |\      _,,,---,,_
+  ZZZzz /, `.-'`'    -.  ;-;;,_
+       |,4-  ) )-,_. ,` (  `'-'
+      '---''(_/--'  `-'\_)
+
+    channels/pong.frag
+    This code is part of Retro CRT Wallpaper
+    rich_beluga, 2026
+*/
+
 precision mediump float;
 
 uniform vec2 u_resolution;
@@ -43,16 +54,16 @@ float drawDigit(vec2 p, float n) {
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
 
-  // Границы игрового поля и отскока
+  // границы игрового поля и отскока
   float boundX = 0.45;
   float boundY = 0.35;
 
-  // Динамика шарика
+  // динамика шарика
   float ballX = pingpong(u_time * 0.72 + 0.3, 2.0 * boundX) - boundX;
   float ballY = pingpong(u_time * 0.54 + 0.6, 2.0 * boundY) - boundY;
   vec2 ballPos = vec2(ballX, ballY);
 
-  // Координаты ракеток (расположены строго на точке отскока шарика)
+  // координаты платформ (расположены строго на точке отскока шарика)
   float padLX = -0.48;
   float padLY = clamp(ballY * 0.94 + sin(u_time * 2.2) * 0.03, -0.28, 0.28);
 
@@ -64,13 +75,13 @@ void main() {
   float padR = sdBox(uv - vec2(padRX, padRY), padHalf);
   float ball = sdBox(uv - ballPos, vec2(0.015, 0.015));
 
-  // Центральная разделительная пунктирная сетка
+  // центральная разделительная пунктирная сетка
   float net = 1.0;
   if (abs(uv.x) < 0.005 && abs(uv.y) < 0.42) {
     if (mod(uv.y + 0.42, 0.05) < 0.025) net = 0.0;
   }
 
-  // Счет на табло (08 : 03)
+  // счет на табло (08 : 03)
   float score = 1.0;
   score = min(score, drawDigit(uv - vec2(-0.16, 0.32), 0.0));
   score = min(score, drawDigit(uv - vec2(-0.07, 0.32), 8.0));
