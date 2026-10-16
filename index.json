@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-13T08:14:47Z",
+  "updatedAt": "2026-10-16T15:15:06Z",
   "wallpapers": [
     {
       "id": "fluids",
@@ -517,7 +517,7 @@
       "id": "80s-retro-room",
       "name": "Retro Room",
       "author": "rich_beluga",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "description": "Ретро обои в пиксельном стиле",
       "path": "wallpapers/80s-retro-room",
       "main": "index.html",
@@ -533,7 +533,7 @@
         "monet"
       ],
       "createdAt": "2026-09-13T08:14:47Z",
-      "updatedAt": "2026-09-13T08:14:47Z",
+      "updatedAt": "2026-10-16T15:15:06Z",
       "downloadUrl": "https://github.com/YouRooni/Wallify-Repo/releases/download/bundles/80s-retro-room.zip"
     }
   ]
